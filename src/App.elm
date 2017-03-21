@@ -2,6 +2,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
 import Array
+import Tuple
 
 main : Program Never Model Msg
 main =
@@ -15,7 +16,7 @@ main =
 -- Model
 
 type alias Model =
-  { cards : Array.Array Int
+  { cards : Array.Array (Int, String)
   , bet : Int
   , total : Float
   , dealOrDraw : String
@@ -24,7 +25,7 @@ type alias Model =
 init : (Model, Cmd Msg)
 init =
   (
-    { cards = Array.fromList [1,2,3,4,5]
+    { cards = Array.fromList [(1, "H"), (2, "D"), (3, "S"), (4, "S"), (9, "C")]
     , bet = 1
     , total = 100.00
     , dealOrDraw = "Deal"
@@ -47,15 +48,23 @@ update msg model =
 
 -- View
 
+getCardVal : Array.Array (Int, String) -> Int -> String
+getCardVal hand index =
+  let thisCard =
+    case Array.get index hand of
+      Nothing -> ("error", "error")
+      Just val -> (toString <| Tuple.first val, Tuple.second val)
+  in
+    Tuple.first thisCard ++ " " ++ Tuple.second thisCard
+
 view : Model -> Html Msg
 view model =
-  let card1 =
-    case Array.get 0 model.cards of
-      Nothing -> "Not Found"
-      Just val -> toString val
-  in
-    div [] [
-      div [ class "card" ] [ text card1 ]
+    div []
+    [ div [ class "card" ] [ text <| getCardVal model.cards 0 ]
+    , div [ class "card" ] [ text <| getCardVal model.cards 1 ]
+    , div [ class "card" ] [ text <| getCardVal model.cards 2 ]
+    , div [ class "card" ] [ text <| getCardVal model.cards 3 ]
+    , div [ class "card" ] [ text <| getCardVal model.cards 4 ]
     ]
 
 
