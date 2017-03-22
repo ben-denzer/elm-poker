@@ -30,7 +30,7 @@ init =
     , bet = 1
     , total = 100.00
     , dealOrDraw = "Deal"
-    , heldCards = [1]
+    , heldCards = []
     }
     , Cmd.none
   )
@@ -38,7 +38,11 @@ init =
 -- Update
 
 type Msg =
-  Deal | Draw | PlayerPays | PlayerWins | Hold
+  Deal
+  | Draw
+  | PlayerPays
+  | PlayerWins
+  | Hold Int
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -47,7 +51,7 @@ update msg model =
     Draw -> (model, Cmd.none)
     PlayerPays -> (model, Cmd.none)
     PlayerWins -> (model, Cmd.none)
-    Hold -> (model, Cmd.none)
+    Hold index -> ( { model | heldCards = index :: model.heldCards }, Cmd.none)
 
 -- View
 
@@ -70,12 +74,13 @@ checkIfHeld index heldCards =
 view : Model -> Html Msg
 view model =
     div [ id "gameArea" ]
-    [ div [ class "cardContainer", id "cardOne", onClick Hold ]
+    [ div [ class "cardContainer", id "cardOne" ]
       [ div [ class "holdContainer" ] [ checkIfHeld 0 model.heldCards |> text ]
       , div [ class "card" ] [ text <| getCardVal model.cards 0 ]
+      , button [ class "holdButton", onClick <| Hold 0 ] [ text "HOLD" ]
       ],
 
-      div [ class "cardContainer", id "cardOne", onClick Hold ]
+      div [ class "cardContainer", id "cardOne" ]
       [ div [ class "holdContainer" ] [ checkIfHeld 1 model.heldCards |> text ]
       , div [ class "card" ] [ text <| getCardVal model.cards 1 ]
       ]
