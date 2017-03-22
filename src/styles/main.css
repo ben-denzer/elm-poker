@@ -1,3 +1,17 @@
 body {
     background-color: red;
 }
+
+#gameArea {
+  display: flex;
+  width: 100%;
+  padding: 50px;
+  justify-content: center;
+}
+
+.card {
+  height: 120px;
+  width: 40px;
+  margin: 10px;
+  border: 2px solid black;
+}

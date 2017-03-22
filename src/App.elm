@@ -20,6 +20,7 @@ type alias Model =
   , bet : Int
   , total : Float
   , dealOrDraw : String
+  , heldCards : Array.Array Int
   }
 
 init : (Model, Cmd Msg)
@@ -29,6 +30,7 @@ init =
     , bet = 1
     , total = 100.00
     , dealOrDraw = "Deal"
+    , heldCards = Array.fromList []
     }
     , Cmd.none
   )
@@ -36,7 +38,7 @@ init =
 -- Update
 
 type Msg =
-  Deal | Draw | PlayerPays | PlayerWins
+  Deal | Draw | PlayerPays | PlayerWins | Hold
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -45,6 +47,7 @@ update msg model =
     Draw -> (model, Cmd.none)
     PlayerPays -> (model, Cmd.none)
     PlayerWins -> (model, Cmd.none)
+    Hold -> (model, Cmd.none)
 
 -- View
 
@@ -59,12 +62,16 @@ getCardVal hand index =
 
 view : Model -> Html Msg
 view model =
-    div []
-    [ div [ class "card" ] [ text <| getCardVal model.cards 0 ]
-    , div [ class "card" ] [ text <| getCardVal model.cards 1 ]
-    , div [ class "card" ] [ text <| getCardVal model.cards 2 ]
-    , div [ class "card" ] [ text <| getCardVal model.cards 3 ]
-    , div [ class "card" ] [ text <| getCardVal model.cards 4 ]
+    div [ id "gameArea" ]
+    [ div [ class "cardContainer", id "cardOne", onClick Hold ]
+      [ div [ class "holdContainer" ] [ text "HOLD" ]
+      , div [ class "card" ] [ text <| getCardVal model.cards 0 ]
+      ],
+
+      div [ class "cardContainer", id "cardOne", onClick Hold ]
+      [ div [ class "holdContainer" ] [ text "HOLD" ]
+      , div [ class "card" ] [ text <| getCardVal model.cards 1 ]
+      ]
     ]
 
 
