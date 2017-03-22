@@ -20,7 +20,7 @@ type alias Model =
   , bet : Int
   , total : Float
   , dealOrDraw : String
-  , heldCards : Array.Array Int
+  , heldCards : List Int
   }
 
 init : (Model, Cmd Msg)
@@ -30,7 +30,7 @@ init =
     , bet = 1
     , total = 100.00
     , dealOrDraw = "Deal"
-    , heldCards = Array.fromList []
+    , heldCards = [1]
     }
     , Cmd.none
   )
@@ -60,16 +60,23 @@ getCardVal hand index =
   in
     Tuple.first thisCard ++ " " ++ Tuple.second thisCard
 
+checkIfHeld : Int -> List Int -> String
+checkIfHeld index heldCards =
+  case List.member index heldCards of
+    True -> "HELD"
+    False -> ""
+
+
 view : Model -> Html Msg
 view model =
     div [ id "gameArea" ]
     [ div [ class "cardContainer", id "cardOne", onClick Hold ]
-      [ div [ class "holdContainer" ] [ text "HOLD" ]
+      [ div [ class "holdContainer" ] [ checkIfHeld 0 model.heldCards |> text ]
       , div [ class "card" ] [ text <| getCardVal model.cards 0 ]
       ],
 
       div [ class "cardContainer", id "cardOne", onClick Hold ]
-      [ div [ class "holdContainer" ] [ text "HOLD" ]
+      [ div [ class "holdContainer" ] [ checkIfHeld 1 model.heldCards |> text ]
       , div [ class "card" ] [ text <| getCardVal model.cards 1 ]
       ]
     ]
