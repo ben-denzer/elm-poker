@@ -13,32 +13,49 @@ main =
     , subscriptions = subscriptions
     }
 
+-- Make my deck, shuffle it
+suits : List String
+suits = ["C", "D", "H", "S"]
+
+cardValues : List Int
+cardValues = List.range 1 13
+
+makeCard : String -> Int -> (Int, String)
+makeCard string val = (val, string)
+
+makeSuit : String -> Int -> (Int, String)
+makeSuit suit = makeCard suit
+
+makeDeck : List Int -> CardArray
+makeDeck values =
+  let
+    clubs     = Array.map (makeSuit "C") <| Array.fromList values
+    diamonds  = Array.map (makeSuit "D") <| Array.fromList values
+    hearts    = Array.map (makeSuit "H") <| Array.fromList values
+    spades    = Array.map (makeSuit "S") <| Array.fromList values
+  in
+    Array.append clubs (Array.append diamonds (Array.append hearts spades))
+-- makeDeck : List Int -> List String -> CardArray
+-- makeDeck values suits =
+--
+
 -- Model
 
+type alias CardArray = Array.Array (Int, String)
+
 type alias Model =
-  { cards       : Array.Array (Int, String)
+  { cards       : CardArray
   , bet         : Int
   , total       : Float
   , dealOrDraw  : String
-  , hand        : Array.Array (Int, String)
+  , hand        : CardArray
   , heldCards   : List Int
   }
 
 init : (Model, Cmd Msg)
 init =
   (
-    { cards = Array.fromList
-      [ (1,  "H")
-      , (2,  "D")
-      , (3,  "S")
-      , (4,  "S")
-      , (9,  "C")
-      , (11, "H")
-      , (5,  "D")
-      , (1,  "S")
-      , (3,  "D")
-      , (4,  "H")
-      ]
+    { cards = makeDeck cardValues
     , bet = 1
     , hand = Array.fromList []
     , total = 100.00
@@ -67,7 +84,7 @@ updateHeld index heldCards =
       True -> List.filter filterOut heldCards
       False -> index :: heldCards
 
-drawCards : Array.Array (Int, String) -> Array.Array (Int, String) -> List Int -> Array.Array (Int, String)
+drawCards : CardArray -> CardArray -> List Int -> CardArray
 drawCards hand cards held =
   let
     next5 = Array.slice 5 10 cards
@@ -105,7 +122,7 @@ update msg model =
 
 -- View
 
-getCardVal : Array.Array (Int, String) -> Int -> String
+getCardVal : CardArray -> Int -> String
 getCardVal hand index =
   let thisCard =
     case Array.get index hand of
