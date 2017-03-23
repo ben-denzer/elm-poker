@@ -30,7 +30,7 @@ init =
     , bet = 1
     , total = 100.00
     , dealOrDraw = "Deal"
-    , heldCards = []
+    , heldCards = [0,1]
     }
     , Cmd.none
   )
@@ -44,6 +44,18 @@ type Msg =
   | PlayerWins
   | Hold Int
 
+updateHeld : Int -> List Int -> List Int
+updateHeld index heldCards =
+  let
+    filterOut : Int -> Bool
+    filterOut val =
+      val /= index
+  in
+    case List.member index heldCards of
+      True -> List.filter filterOut heldCards
+      False -> index :: heldCards
+
+
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
@@ -51,7 +63,7 @@ update msg model =
     Draw -> (model, Cmd.none)
     PlayerPays -> (model, Cmd.none)
     PlayerWins -> (model, Cmd.none)
-    Hold index -> ( { model | heldCards = index :: model.heldCards }, Cmd.none)
+    Hold index -> ( { model | heldCards = updateHeld index model.heldCards }, Cmd.none)
 
 -- View
 
@@ -64,8 +76,8 @@ getCardVal hand index =
   in
     Tuple.first thisCard ++ " " ++ Tuple.second thisCard
 
-checkIfHeld : Int -> List Int -> String
-checkIfHeld index heldCards =
+displayIfHeld : Int -> List Int -> String
+displayIfHeld index heldCards =
   case List.member index heldCards of
     True -> "HELD"
     False -> ""
@@ -75,13 +87,13 @@ view : Model -> Html Msg
 view model =
     div [ id "gameArea" ]
     [ div [ class "cardContainer", id "cardOne" ]
-      [ div [ class "holdContainer" ] [ checkIfHeld 0 model.heldCards |> text ]
+      [ div [ class "holdContainer" ] [ displayIfHeld 0 model.heldCards |> text ]
       , div [ class "card" ] [ text <| getCardVal model.cards 0 ]
       , button [ class "holdButton", onClick <| Hold 0 ] [ text "HOLD" ]
       ],
 
       div [ class "cardContainer", id "cardOne" ]
-      [ div [ class "holdContainer" ] [ checkIfHeld 1 model.heldCards |> text ]
+      [ div [ class "holdContainer" ] [ displayIfHeld 1 model.heldCards |> text ]
       , div [ class "card" ] [ text <| getCardVal model.cards 1 ]
       ]
     ]

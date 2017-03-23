@@ -1,5 +1,4 @@
 body {
-    background-color: red;
 }
 
 #gameArea {
@@ -10,8 +9,8 @@ body {
 }
 
 .card {
-  height: 120px;
-  width: 40px;
+  height: 90px;
+  width: 60px;
   margin: 10px;
   border: 2px solid black;
 }
