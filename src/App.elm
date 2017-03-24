@@ -58,6 +58,7 @@ type alias CardArray = List Card
 type alias Model =
   { cards       : CardArray
   , bet         : Int
+  , cardStatus  : String
   , dealOrDraw  : String
   , hand        : CardArray
   , heldCards   : List Int
@@ -71,6 +72,7 @@ init =
   (
     { cards = shuffleDeck (makeDeck cardValues) 1234
     , bet = 1
+    , cardStatus = "faceDown"
     , dealOrDraw = "Deal"
     , hand = []
     , heldCards = []
@@ -130,6 +132,7 @@ update msg model =
     DealOrDraw last->
       if model.dealOrDraw == "Deal" then
         ( { model |
+            cardStatus = "faceUp",
             hand = Array.toList <| Array.slice 0 5 <| Array.fromList model.cards,
             dealOrDraw = "Draw",
             heldCards = [],
@@ -157,14 +160,11 @@ update msg model =
 
 -- View
 
-getCardVal : CardArray -> Int -> String
+getCardVal : CardArray -> Int -> Card
 getCardVal hand index =
-  let thisCard =
     case Array.get index <| Array.fromList hand of
-      Nothing -> ("", "")
-      Just val -> (toString <| Tuple.first val, Tuple.second val)
-  in
-    Tuple.first thisCard ++ " " ++ Tuple.second thisCard
+      Nothing -> (0, "")
+      Just val -> val
 
 displayIfHeld : Int -> List Int -> String
 displayIfHeld index heldCards =
@@ -176,43 +176,30 @@ displayIfHeld index heldCards =
 view : Model -> Html Msg
 view model =
     div [ id "gameArea" ]
-    [ div [ id "cardRow" ]
-      [ div [ class "cardContainer", id "cardZero" ]
+      [ div [ id "heldRow" ]
         [ div [ class "holdContainer" ] [ displayIfHeld 0 model.heldCards |> text ]
-        , div [ class "card" ] [ text <| getCardVal model.hand 0 ]
-        , button [ class "holdButton", onClick <| Hold 0 ] [ text "HOLD" ]
+        , div [ class "holdContainer" ] [ displayIfHeld 1 model.heldCards |> text ]
         ],
-
-        div [ class "cardContainer", id "cardOne" ]
-        [ div [ class "holdContainer" ] [ displayIfHeld 1 model.heldCards |> text ]
-        , div [ class "card" ] [ text <| getCardVal model.hand 1 ]
-        , button [ class "holdButton", onClick <| Hold 1 ] [ text "HOLD" ]
+        div [ id "cardRow" ]
+          [ div [ class "cardContainer", id "cardZero", onClick <| Hold 0 ]
+            [ div [ class model.cardStatus ]
+              [ div [ class "topLeft" ]  [ text <| toString <| Tuple.first <| getCardVal model.hand 0 ]
+              , div [ class "cardSuit" ] [ text <| toString <| Tuple.second <| getCardVal model.hand 0 ]
+              ]
+            ],
+            div [ class "cardContainer", id "cardOne", onClick <| Hold 1]
+            [ div [ class model.cardStatus ]
+              [ div [ class "topLeft" ]  [ text <| toString <| Tuple.first <| getCardVal model.hand 1 ]
+              , div [ class "cardSuit" ] [ text <| toString <| Tuple.second <| getCardVal model.hand 1 ]
+              ]
+            ]
         ],
-
-        div [ class "cardContainer", id "cardTwo" ]
-        [ div [ class "holdContainer" ] [ displayIfHeld 2 model.heldCards |> text ]
-        , div [ class "card" ] [ text <| getCardVal model.hand 2 ]
-        , button [ class "holdButton", onClick <| Hold 2 ] [ text "HOLD" ]
-        ],
-
-        div [ class "cardContainer", id "cardThree" ]
-        [ div [ class "holdContainer" ] [ displayIfHeld 3 model.heldCards |> text ]
-        , div [ class "card" ] [ text <| getCardVal model.hand 3 ]
-        , button [ class "holdButton", onClick <| Hold 3 ] [ text "HOLD" ]
-        ],
-
-        div [ class "cardContainer", id "cardFour" ]
-        [ div [ class "holdContainer" ] [ displayIfHeld 4 model.heldCards |> text ]
-        , div [ class "card" ] [ text <| getCardVal model.hand 4 ]
-        , button [ class "holdButton", onClick <| Hold 4 ] [ text "HOLD" ]
-        ]
-      ],
-      div [ id "gameButtonRow" ]
-      [ button [ onClick <| DealOrDraw model.seed ] [ text model.dealOrDraw ]
-      , div [] [ text <| toString model.cards ]
-      , div [] [ text <| toString <| model.seed ]
+        div [ id "gameButtonRow" ]
+          [ button [ onClick <| DealOrDraw model.seed ] [ text model.dealOrDraw ]
+          , div [] [ text <| toString model.cards ]
+          , div [] [ text <| toString <| model.seed ]
+          ]
       ]
-    ]
 
 
 -- Subscriptions
