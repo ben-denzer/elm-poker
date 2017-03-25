@@ -184,13 +184,15 @@ view model =
           [ div [ class "cardContainer", id "cardZero", onClick <| Hold 0 ]
             [ div [ class model.cardStatus ]
               [ div [ class "topLeft" ]  [ text <| toString <| Tuple.first <| getCardVal model.hand 0 ]
-              , div [ class "cardSuit" ] [ text <| toString <| Tuple.second <| getCardVal model.hand 0 ]
+              , div [ class "cardSuit" ] [ text <| Tuple.second <| getCardVal model.hand 0 ]
+              , div [ class "bottomRight" ]  [ text <| toString <| Tuple.first <| getCardVal model.hand 0 ]
               ]
             ],
             div [ class "cardContainer", id "cardOne", onClick <| Hold 1]
             [ div [ class model.cardStatus ]
               [ div [ class "topLeft" ]  [ text <| toString <| Tuple.first <| getCardVal model.hand 1 ]
-              , div [ class "cardSuit" ] [ text <| toString <| Tuple.second <| getCardVal model.hand 1 ]
+              , div [ class "cardSuit" ] [ text <| Tuple.second <| getCardVal model.hand 1 ]
+              , div [ class "bottomRight" ]  [ text <| toString <| Tuple.first <| getCardVal model.hand 1 ]
               ]
             ]
         ],
