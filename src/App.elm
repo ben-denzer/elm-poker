@@ -67,17 +67,21 @@ type alias Model =
   , total       : Float
   }
 
+makeTimeInt : Float -> Int
+makeTimeInt num =
+  floor <| Time.inMilliseconds 1.23948
+
 init : (Model, Cmd Msg)
 init =
   (
-    { cards = shuffleDeck (makeDeck cardValues) 1234
+    { cards = shuffleDeck (makeDeck cardValues) (makeTimeInt 23498)
     , bet = 1
     , cardStatus = "faceDown"
     , dealOrDraw = "Deal"
     , hand = []
     , heldCards = []
-    , initialSeed = 1.234
-    , seed = 1234
+    , initialSeed = Time.millisecond * 24747
+    , seed = floor <| Time.inMilliseconds 98798709.97
     , total = 100.00
     }
     , Cmd.none
@@ -173,34 +177,36 @@ displayIfHeld index heldCards =
     False -> ""
 
 
+makeCardHtml : Model -> Int -> Html Msg
+makeCardHtml model index =
+  div [ class "cardContainer", id ("card" ++ toString index), onClick <| Hold index ]
+    [ div [ class model.cardStatus ]
+      [ div [ class "topLeft" ]  [ text <| toString <| Tuple.first <| getCardVal model.hand index ]
+      , div [ class "cardSuit" ] [ text <| Tuple.second <| getCardVal model.hand index ]
+      , div [ class "bottomRight" ]  [ text <| toString <| Tuple.first <| getCardVal model.hand index ]
+      ]
+    ]
+
+
 view : Model -> Html Msg
 view model =
+  let
+    --makeEachCard : Int -> Int -> Html Msg
+    makeEachCard =
+      makeCardHtml model
+    cards = List.map makeEachCard <| List.range 0 4
+  in
     div [ id "gameArea" ]
       [ div [ id "heldRow" ]
         [ div [ class "holdContainer" ] [ displayIfHeld 0 model.heldCards |> text ]
         , div [ class "holdContainer" ] [ displayIfHeld 1 model.heldCards |> text ]
         ],
-        div [ id "cardRow" ]
-          [ div [ class "cardContainer", id "cardZero", onClick <| Hold 0 ]
-            [ div [ class model.cardStatus ]
-              [ div [ class "topLeft" ]  [ text <| toString <| Tuple.first <| getCardVal model.hand 0 ]
-              , div [ class "cardSuit" ] [ text <| Tuple.second <| getCardVal model.hand 0 ]
-              , div [ class "bottomRight" ]  [ text <| toString <| Tuple.first <| getCardVal model.hand 0 ]
-              ]
-            ],
-            div [ class "cardContainer", id "cardOne", onClick <| Hold 1]
-            [ div [ class model.cardStatus ]
-              [ div [ class "topLeft" ]  [ text <| toString <| Tuple.first <| getCardVal model.hand 1 ]
-              , div [ class "cardSuit" ] [ text <| Tuple.second <| getCardVal model.hand 1 ]
-              , div [ class "bottomRight" ]  [ text <| toString <| Tuple.first <| getCardVal model.hand 1 ]
-              ]
-            ]
-        ],
+        div [ id "cardRow" ] cards,
         div [ id "gameButtonRow" ]
-          [ button [ onClick <| DealOrDraw model.seed ] [ text model.dealOrDraw ]
-          , div [] [ text <| toString model.cards ]
-          , div [] [ text <| toString <| model.seed ]
-          ]
+        [ button [ onClick <| DealOrDraw model.seed ] [ text model.dealOrDraw ]
+        , div [] [ text <| toString model.cards ]
+        , div [] [ text <| toString <| model.seed ]
+        ]
       ]
 
 
