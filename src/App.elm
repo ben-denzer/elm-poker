@@ -1,9 +1,10 @@
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
+import DeckHelpers exposing (makeDeck, shuffleDeck)
+import UpdateHelpers exposing (..)
 import Array
 import Tuple
-import Random
 import Time
 
 main : Program Never Model Msg
@@ -15,52 +16,16 @@ main =
     , subscriptions = subscriptions
     }
 
--- Make my deck, shuffle it
-suits : List String
-suits = ["C", "D", "H", "S"]
-
-cardValues : List Int
-cardValues = List.range 1 13
-
-makeCard : String -> Int -> (Int, String)
-makeCard string val = (val, string)
-
-makeSuit : String -> Int -> (Int, String)
-makeSuit suit = makeCard suit
-
-makeDeck : List Int -> CardArray
-makeDeck values =
-  let
-    clubs     = List.map (makeSuit "C") values
-    diamonds  = List.map (makeSuit "D") values
-    hearts    = List.map (makeSuit "H") values
-    spades    = List.map (makeSuit "S") values
-  in
-    List.append clubs <| List.append diamonds <| List.append hearts spades
-
-shuffleDeck : CardArray -> Int -> CardArray
-shuffleDeck original seed =
-  let
-    listOfRandoms =
-      Random.step
-        (Random.list (List.length original) (Random.int 1 100000))
-        (Random.initialSeed seed)
-        |> Tuple.first
-    zipped = List.map2 (,) listOfRandoms original
-    sorted = zipped |> List.sortBy Tuple.first
-  in
-    List.unzip sorted |> Tuple.second
-
 -- Model
 type alias Card = (Int, String)
-type alias CardArray = List Card
+type alias CardList = List Card
 
 type alias Model =
-  { cards       : CardArray
+  { cards       : CardList
   , bet         : Int
   , cardStatus  : String
   , dealOrDraw  : String
-  , hand        : CardArray
+  , hand        : CardList
   , heldCards   : List Int
   , initialSeed : Float
   , seed        : Int
@@ -74,7 +39,7 @@ makeTimeInt num =
 init : (Model, Cmd Msg)
 init =
   (
-    { cards = shuffleDeck (makeDeck cardValues) (makeTimeInt 23498)
+    { cards = shuffleDeck (makeDeck <| List.range 1 13) (makeTimeInt 23498)
     , bet = 1
     , cardStatus = "faceDown"
     , dealOrDraw = "Deal"
@@ -98,37 +63,6 @@ type Msg =
   | PlayerWins
   | Hold Int
   | Tick Time
-
-updateHeld : Int -> List Int -> List Int
-updateHeld index heldCards =
-  let
-    filterOut : Int -> Bool
-    filterOut val =
-      val /= index
-  in
-    case List.member index heldCards of
-      True -> List.filter filterOut heldCards
-      False -> index :: heldCards
-
-drawCards : CardArray -> CardArray -> List Int -> Array.Array (Int, String)
-drawCards hand cards held =
-  let
-    next5 = Array.slice 5 10 <| Array.fromList cards
-
-    isHeld : Int -> Bool
-    isHeld index =
-      List.member index held
-
-    mapHand index thisCard =
-      if isHeld index then
-        thisCard
-      else
-        case Array.get index next5 of
-          Nothing -> (0, "error")
-          Just val -> val
-
-  in
-    Array.indexedMap mapHand <| Array.fromList hand
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -164,7 +98,7 @@ update msg model =
 
 -- View
 
-getCardVal : CardArray -> Int -> Card
+getCardVal : CardList -> Int -> Card
 getCardVal hand index =
     case Array.get index <| Array.fromList hand of
       Nothing -> (0, "")
@@ -187,20 +121,30 @@ makeCardHtml model index =
       ]
     ]
 
+makeHeldHtml : Model -> Int -> Html Msg
+makeHeldHtml model index =
+  div [ class "holdContainer" ] [ displayIfHeld index model.heldCards |> text ]
+
 
 view : Model -> Html Msg
 view model =
   let
-    --makeEachCard : Int -> Int -> Html Msg
+    makeEachCard : Int -> Html Msg
     makeEachCard =
       makeCardHtml model
+
+    cards : List (Html Msg)
     cards = List.map makeEachCard <| List.range 0 4
+
+    makeEachHeldBlock : Int -> Html Msg
+    makeEachHeldBlock =
+      makeHeldHtml model
+
+    heldBlocks : List (Html Msg)
+    heldBlocks = List.map makeEachHeldBlock <| List.range 0 4
   in
     div [ id "gameArea" ]
-      [ div [ id "heldRow" ]
-        [ div [ class "holdContainer" ] [ displayIfHeld 0 model.heldCards |> text ]
-        , div [ class "holdContainer" ] [ displayIfHeld 1 model.heldCards |> text ]
-        ],
+      [ div [ id "heldRow" ] heldBlocks,
         div [ id "cardRow" ] cards,
         div [ id "gameButtonRow" ]
         [ button [ onClick <| DealOrDraw model.seed ] [ text model.dealOrDraw ]
