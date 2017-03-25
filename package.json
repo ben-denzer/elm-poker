@@ -1,0 +1,16 @@
+{
+  "name": "elmPoker",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:ben-denzer/elm-poker.git",
+  "author": "Ben Denzer <denzer.ben@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "presass:watch": "node-sass src/scss -o src/styles",
+    "sass:watch": "node-sass -w src/scss -o src/styles",
+    "start": "elm-reactor"
+  },
+  "dependencies": {
+    "node-sass": "^4.5.1"
+  }
+}

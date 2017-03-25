@@ -1,0 +1,5 @@
+#!/bin/bash
+
+gnome-terminal -e "bash -c \"cd /home/ben/Documents/projects/elmPoker && yarnpkg run sass:watch; exec bash\""
+gnome-terminal -e "bash -c \"cd /home/ben/Documents/projects/elmPoker && yarn start; exec bash\""
+
