@@ -2,17 +2,7 @@ module UpdateHelpers exposing (..)
 import Array
 
 type alias CardList = List (Int, String)
-
-updateHeld : Int -> List Int -> List Int
-updateHeld index heldCards =
-  let
-    filterOut : Int -> Bool
-    filterOut val =
-      val /= index
-  in
-    case List.member index heldCards of
-      True -> List.filter filterOut heldCards
-      False -> index :: heldCards
+type CardStatus = FaceDown | FaceUp
 
 drawCards : CardList -> CardList -> List Int -> Array.Array (Int, String)
 drawCards hand cards held =
@@ -33,3 +23,14 @@ drawCards hand cards held =
 
   in
     Array.indexedMap mapHand <| Array.fromList hand
+
+updateHeld : Int -> List Int -> List Int
+updateHeld index heldCards =
+  let
+    filterOut : Int -> Bool
+    filterOut val =
+      val /= index
+  in
+    case List.member index heldCards of
+      True -> List.filter filterOut heldCards
+      False -> index :: heldCards

@@ -68,6 +68,18 @@ type Msg =
   | Hold Int
   | Tick Time
 
+flipCards : CardList -> List (Int) -> List CardStatus
+flipCards hand heldCards =
+  let
+    isHeld : Int -> (Int, String) -> CardStatus
+    isHeld index card =
+      if List.member index heldCards then
+        FaceUp
+      else
+        FaceDown
+  in
+    Array.toList <| Array.indexedMap isHeld <| Array.fromList hand
+
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
@@ -84,7 +96,9 @@ update msg model =
         )
       else
         ( { model |
+            -- shuffle for next hand
             cards = shuffleDeck model.cards <| floor model.initialSeed + last,
+            cardStatusList = flipCards model.hand model.heldCards,
             gameStatus = GameOver,
             hand = Array.toList <| drawCards model.hand model.cards model.heldCards,
             dealOrDraw = "Deal"
