@@ -44,8 +44,8 @@
   .faceDown {
     background-color: blue;
 
-    .faceDown .topLeft,
-    .faceDown .cardSuit {
+    .topLeft,
+    .cardSuit {
       display: none;
     }
 
@@ -53,5 +53,4 @@
       margin-top: 40px;
     }
   }
-
 }
