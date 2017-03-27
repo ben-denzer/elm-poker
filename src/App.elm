@@ -20,19 +20,27 @@ main =
 type alias Card = (Int, String)
 type alias CardList = List Card
 type CardStatus = FaceDown | FaceUp
-type GameStatus = Begin | Draw | GameOver
+type CardWinnerStatus = NotAWinner | Winner
+type GameStatus =
+  Begin
+  | GameOver
+  | Draw
+  | Win
+  | Lose
 
 type alias Model =
-  { cards           : CardList
-  , bet             : Int
-  , cardStatusList  : List CardStatus
-  , dealOrDraw      : String
-  , gameStatus      : GameStatus
-  , hand            : CardList
-  , heldCards       : List Int
-  , initialSeed     : Float
-  , seed            : Int
-  , total           : Float
+  { cards                   : CardList
+  , bet                     : Int
+  , cardStatusList          : List CardStatus
+  , cardWinnerList          : List CardWinnerStatus
+  , currentlyFlippingCards  : Bool
+  , dealOrDraw              : String
+  , gameStatus              : GameStatus
+  , hand                    : CardList
+  , heldCards               : List Int
+  , initialSeed             : Float
+  , seed                    : Int
+  , total                   : Float
   }
 
 makeTimeInt : Float -> Int
@@ -42,16 +50,18 @@ makeTimeInt num =
 init : (Model, Cmd Msg)
 init =
   (
-    { cards           = shuffleDeck (makeDeck <| List.range 1 13) (makeTimeInt 23498)
-    , bet             = 1
-    , cardStatusList  = List.repeat 5 FaceDown
-    , dealOrDraw      = "Deal"
-    , gameStatus      = Begin
-    , hand            = []
-    , heldCards       = []
-    , initialSeed     = Time.millisecond * 24747
-    , seed            = floor <| Time.inMilliseconds 98798709.97
-    , total           = 100.00
+    { cards                   = shuffleDeck (makeDeck <| List.range 1 13) (makeTimeInt 23498)
+    , bet                     = 1
+    , cardStatusList          = List.repeat 5 FaceDown
+    , cardWinnerList          = List.repeat 5 NotAWinner
+    , currentlyFlippingCards  = False
+    , dealOrDraw              = "Deal"
+    , gameStatus              = Begin
+    , hand                    = []
+    , heldCards               = []
+    , initialSeed             = Time.millisecond * 24747
+    , seed                    = floor <| Time.inMilliseconds 98798709.97
+    , total                   = 100.00
     }
     , Cmd.none
   )
@@ -79,6 +89,11 @@ flipCards hand heldCards =
         FaceDown
   in
     Array.toList <| Array.indexedMap isHeld <| Array.fromList hand
+
+checkForWinners : CardList -> List CardWinnerStatus
+checkForWinners hand =
+  Debug.log "Hit checkfor"
+  List.repeat 5 NotAWinner
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -136,9 +151,20 @@ update msg model =
             newStatusList : List CardStatus
             newStatusList = Array.toList <| Array.set nextToFlip FaceUp <| Array.fromList model.cardStatusList
           in
-          ( { model | cardStatusList = newStatusList }, Cmd.none)
+            ( { model
+                | cardStatusList = newStatusList
+                , currentlyFlippingCards = True
+              }, Cmd.none
+            )
         else
-          ( { model | initialSeed = Time.inMilliseconds time }, Cmd.none )
+          if model.currentlyFlippingCards == True then
+            let
+              winnerList : List CardWinnerStatus
+              winnerList = checkForWinners model.hand
+            in
+            ( { model | currentlyFlippingCards = False, cardWinnerList = winnerList }, Cmd.none )
+          else
+            ( { model | initialSeed = Time.inMilliseconds time }, Cmd.none )
     PlayerPays -> (model, Cmd.none)
     PlayerWins -> (model, Cmd.none)
     Hold index ->
@@ -165,7 +191,7 @@ displayIfHeld index heldCards =
 makeCardHtml : Model -> Int -> Html Msg
 makeCardHtml model index =
   div [ class "cardContainer", id ("card" ++ toString index), onClick <| Hold index ]
-    [ div [ class <| toString <| Array.get index <| Array.fromList model.cardStatusList ]
+    [ div [ class <| "card " ++ (toString <| Array.get index <| Array.fromList model.cardStatusList) ]
       [ div [ class "topLeft" ]  [ text <| toString <| Tuple.first <| getCardVal model.hand index ]
       , div [ class "cardSuit" ] [ text <| Tuple.second <| getCardVal model.hand index ]
       , div [ class "bottomRight" ]  [ text <| toString <| Tuple.first <| getCardVal model.hand index ]
@@ -199,8 +225,7 @@ view model =
         div [ id "cardRow" ] cards,
         div [ id "gameButtonRow" ]
         [ button [ onClick <| DealOrDraw model.seed ] [ text model.dealOrDraw ]
-        , div [] [ text <| toString model.cards ]
-        , div [] [ text <| toString <| model.seed ]
+        , div [] [ text "" ]
         ]
       ]
 
