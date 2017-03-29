@@ -202,11 +202,23 @@ makeCardHtml model index =
         11 -> "J"
         1  -> "A"
         default -> toString cardVal
+
+    displayImg : CardList -> Int -> String
+    displayImg hand index =
+      let
+        suit = case Tuple.second <| getCardVal hand index of
+          "C" -> "clubs"
+          "D" -> "diamonds"
+          "H" -> "hearts"
+          "S" -> "spades"
+          default -> "cardback" -- error case
+      in
+        "https://bdenzer.com/projects/videopoker/images/" ++ suit ++ ".png"
   in
     div [ class "cardContainer", id ("card" ++ toString index), onClick <| Hold index ]
       [ div [ class <| "card " ++ (toString <| Array.get index <| Array.fromList model.cardStatusList) ]
         [ div [ class "topLeft" ]  [ text <| displayVal model.hand index ]
-        , div [ class "cardSuit" ] [ text <| Tuple.second <| getCardVal model.hand index ]
+        , img [ class "cardSuit", src <| displayImg model.hand index ] []
         , div [ class "bottomRight" ]  [ text <| displayVal model.hand index ]
         ]
       ]
