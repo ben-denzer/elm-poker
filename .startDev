@@ -1,5 +1,9 @@
 #!/bin/bash
 
-gnome-terminal -e "bash -c \"cd /home/ben/Documents/projects/elmPoker && yarnpkg run sass:watch; exec bash\""
-gnome-terminal -e "bash -c \"cd /home/ben/Documents/projects/elmPoker && yarn start; exec bash\""
+gnome-terminal --geometry=60X15+0-200 -e "bash -c \"cd /home/ben/Documents/projects/elmPoker && yarnpkg run sass:watch; exec bash\""
 
+gnome-terminal --geometry=60X15+0-100 -e "bash -c \"cd /home/ben/Documents/projects/elmPoker && yarn start; exec bash\""
+
+gnome-terminal --geometry=60X15+0-0 -e "chromium-browser http://localhost:8000/dev.html"
+
+atom .

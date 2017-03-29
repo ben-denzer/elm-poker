@@ -190,13 +190,26 @@ displayIfHeld index heldCards =
 
 makeCardHtml : Model -> Int -> Html Msg
 makeCardHtml model index =
-  div [ class "cardContainer", id ("card" ++ toString index), onClick <| Hold index ]
-    [ div [ class <| "card " ++ (toString <| Array.get index <| Array.fromList model.cardStatusList) ]
-      [ div [ class "topLeft" ]  [ text <| toString <| Tuple.first <| getCardVal model.hand index ]
-      , div [ class "cardSuit" ] [ text <| Tuple.second <| getCardVal model.hand index ]
-      , div [ class "bottomRight" ]  [ text <| toString <| Tuple.first <| getCardVal model.hand index ]
+  let
+    displayVal : CardList -> Int -> String
+    displayVal hand index =
+      let
+        cardVal = Tuple.first <| getCardVal hand index
+      in
+      case cardVal of
+        13 -> "K"
+        12 -> "Q"
+        11 -> "J"
+        1  -> "A"
+        default -> toString cardVal
+  in
+    div [ class "cardContainer", id ("card" ++ toString index), onClick <| Hold index ]
+      [ div [ class <| "card " ++ (toString <| Array.get index <| Array.fromList model.cardStatusList) ]
+        [ div [ class "topLeft" ]  [ text <| displayVal model.hand index ]
+        , div [ class "cardSuit" ] [ text <| Tuple.second <| getCardVal model.hand index ]
+        , div [ class "bottomRight" ]  [ text <| displayVal model.hand index ]
+        ]
       ]
-    ]
 
 makeHeldHtml : Model -> Int -> Html Msg
 makeHeldHtml model index =
