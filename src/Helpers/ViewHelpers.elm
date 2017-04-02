@@ -71,6 +71,13 @@ getCardVal hand index =
       Nothing -> (0, "")
       Just val -> val
 
+getNextBet : Int -> Int
+getNextBet bet =
+  if bet == 5 then
+    1
+  else
+    bet + 1
+
 makeCardHtml : Model -> Int -> Html Msg
 makeCardHtml model index =
     div [ class "cardContainer", id ("card" ++ toString index), onClick <| Hold index ]

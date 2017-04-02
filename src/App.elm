@@ -119,6 +119,8 @@ update msg model =
             ( { model | initialSeed = Time.inMilliseconds time }, Cmd.none )
     PlayerPays -> (model, Cmd.none)
     PlayerWins -> (model, Cmd.none)
+    RaiseBet bet ->
+      ( { model | bet = bet }, Cmd.none)
     Hold index ->
       if model.dealOrDraw == "Draw" then
         ( { model | heldCards = updateHeld index model.heldCards }, Cmd.none)
@@ -144,6 +146,9 @@ view model =
     heldBlocks : List (Html Msg)
     heldBlocks = List.map makeEachHeldBlock <| List.range 0 4
 
+    nextBet : Int
+    nextBet = getNextBet model.bet
+
     payRows : List (Html Msg)
     payRows = List.reverse <| List.map makePayTableRow allHands
   in
@@ -154,8 +159,9 @@ view model =
       div [ id "heldRow" ] heldBlocks,
       div [ id "cardRow" ] cards,
       div [ id "gameButtonRow" ]
-      [ button [ onClick <| DealOrDraw model.seed ] [ text model.dealOrDraw ]
-      , div [] [ text "" ]
+      [ button [ onClick <| RaiseBet nextBet ] [ text <| "Bet " ++ toString nextBet ]
+      , button [ onClick <| RaiseBet 5 ] [ text <| "Bet Max" ]
+      , button [ onClick <| DealOrDraw model.seed ] [ text model.dealOrDraw ]
       ]
     ]
 

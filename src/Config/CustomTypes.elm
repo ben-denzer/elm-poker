@@ -30,9 +30,10 @@ type alias Model =
 type Msg =
   DealOrDraw Int
   | GenerateSeed Int
+  | Hold Int
   | PlayerPays
   | PlayerWins
-  | Hold Int
+  | RaiseBet Int
   | Tick Time
 
 type alias Time = Float
