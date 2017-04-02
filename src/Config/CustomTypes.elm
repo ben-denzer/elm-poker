@@ -1,25 +1,16 @@
 module CustomTypes exposing (..)
 
-type alias Card = (Int, String)
-type alias CardList = List Card
-type CardStatus = FaceDown | FaceUp
+type alias Card       = (Int, String)
+type alias CardList   = List Card
+type CardStatus       = FaceDown | FaceUp
 type CardWinnerStatus = NotAWinner | Winner
+
 type GameStatus =
   Begin
   | GameOver
   | Draw
   | Win
   | Lose
-
-type alias Time = Float
-
-type Msg =
-  DealOrDraw Int
-  | GenerateSeed Int
-  | PlayerPays
-  | PlayerWins
-  | Hold Int
-  | Tick Time
 
 type alias Model =
   { cards                   : CardList
@@ -35,3 +26,13 @@ type alias Model =
   , seed                    : Int
   , total                   : Float
   }
+
+type Msg =
+  DealOrDraw Int
+  | GenerateSeed Int
+  | PlayerPays
+  | PlayerWins
+  | Hold Int
+  | Tick Time
+
+type alias Time = Float
