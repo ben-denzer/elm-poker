@@ -143,10 +143,13 @@ view model =
 
     heldBlocks : List (Html Msg)
     heldBlocks = List.map makeEachHeldBlock <| List.range 0 4
+
+    payRows : List (Html Msg)
+    payRows = List.reverse <| List.map makePayTableRow allHands
   in
     div [ id "gameArea" ]
     [ div [ id "payTable" ]
-      [ div [] [ makePayTableRow "Jacks or Better" 1 ]
+      [ div [] payRows
       ],
       div [ id "heldRow" ] heldBlocks,
       div [ id "cardRow" ] cards,

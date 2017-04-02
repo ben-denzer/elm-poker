@@ -5,6 +5,19 @@ import Html exposing (Html, div, img, text)
 import Html.Attributes exposing (class, id, src)
 import Html.Events exposing (onClick)
 
+allHands : List (String, Int)
+allHands =
+  [ ("Jacks Or Better", 1)
+  , ("Two Pair", 2)
+  , ("Three Of A Kind", 3)
+  , ("Straight", 4)
+  , ("Flush", 6)
+  , ("Full House", 9)
+  , ("Four Of A Kind", 25)
+  , ("Straight Flush", 50)
+  , ("Royal Flush", 250)
+  ]
+
 displayIfHeld : Int -> List Int -> String
 displayIfHeld index heldCards =
   case List.member index heldCards of
@@ -72,13 +85,25 @@ makeHeldHtml : Model -> Int -> Html Msg
 makeHeldHtml model index =
   div [ class "holdContainer" ] [ displayIfHeld index model.heldCards |> text ]
 
-makePayTableRow : String -> Int -> Html Msg
-makePayTableRow str int =
-  div [ class "payRow" ]
-  [ div [ class "payRowCol payRowLabel" ]   [ text str ]
-  , div [ class "payRowCol payOne" ]        [ text <| toString int ]
-  , div [ class "payRowCol payTwo" ]        [ text <| toString <| int * 2 ]
-  , div [ class "payRowCol payThree" ]      [ text <| toString <| int * 3 ]
-  , div [ class "payRowCol payFour" ]       [ text <| toString <| int * 4 ]
-  , div [ class "payRowCol payFive" ]       [ text <| toString <| int * 5 ]
-  ]
+
+makePayTableRow : (String, Int) -> Html Msg
+makePayTableRow hand =
+  let
+    handName : (String, Int) -> String
+    handName hand = Tuple.first hand
+
+    handVal : (String, Int) -> Int
+    handVal hand = Tuple.second hand
+
+    rowClassName : (String, Int) -> String
+    rowClassName hand =
+      String.join "_" <| String.split " " <| Tuple.first hand
+  in
+    div [ class <| "payRow " ++ rowClassName hand ]
+    [ div [ class "payRowCol payRowLabel" ]   [ text <| handName hand ]
+    , div [ class "payRowCol payOne" ]        [ text <| toString <| handVal hand ]
+    , div [ class "payRowCol payTwo" ]        [ text <| toString <| handVal hand * 2 ]
+    , div [ class "payRowCol payThree" ]      [ text <| toString <| handVal hand * 3 ]
+    , div [ class "payRowCol payFour" ]       [ text <| toString <| handVal hand * 4 ]
+    , div [ class "payRowCol payFive" ]       [ text <| toString <| handVal hand * 5 ]
+    ]
