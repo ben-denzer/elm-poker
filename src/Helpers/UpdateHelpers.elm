@@ -3,10 +3,23 @@ import CustomTypes exposing (..)
 import Array
 import Time
 
-checkForWinners : CardList -> List CardWinnerStatus
+checkForWinners : CardList -> (HandStatus, List CardWinnerStatus)
 checkForWinners hand =
-  Debug.log "Hit checkfor"
-  List.repeat 5 NotAWinner
+  let
+    isFlush : CardList -> Bool
+    isFlush hand =
+      let
+        suitList = List.map Tuple.second hand
+      in
+        case List.head suitList of
+          Nothing -> False
+          Just val ->
+            List.all (\x -> x == val) suitList
+  in
+    if isFlush hand then
+      (Flush, List.repeat 5 Winner)
+    else
+      (NoWinner, List.repeat 5 NotAWinner)
 
 drawCards : CardList -> CardList -> List Int -> Array.Array (Int, String)
 drawCards hand cards held =

@@ -12,6 +12,17 @@ type GameStatus =
   | Win
   | Lose
 
+type HandStatus =
+  NoWinner
+  | JacksOrBetter
+  | TwoPair
+  | ThreeOfAKind
+  | Straight
+  | Flush
+  | FullHouse
+  | StraightFlush
+  | RoyalFlush
+
 type alias Model =
   { cards                   : CardList
   , bet                     : Int
@@ -22,6 +33,7 @@ type alias Model =
   , dealOrDraw              : String
   , gameStatus              : GameStatus
   , hand                    : CardList
+  , handStatus              : HandStatus
   , heldCards               : List Int
   , initialSeed             : Float
   , seed                    : Int

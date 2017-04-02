@@ -93,13 +93,25 @@ getNextBet bet =
 
 makeCardHtml : Model -> Int -> Html Msg
 makeCardHtml model index =
-    div [ class "cardContainer", id ("card" ++ toString index), onClick <| Hold index ]
-      [ div [ class <| displayStatus model.cardStatusList model.heldCards index ]
-        [ div [ class "topLeft" ]  [ text <| displayVal model.hand index ]
-        , img [ class "cardSuit", src <| displayImg model.hand index ] []
-        , div [ class "bottomRight" ]  [ text <| displayVal model.hand index ]
+    let
+      isWinner : String
+      isWinner =
+        case Array.get index <| Array.fromList model.cardWinnerList of
+          Nothing ->
+            ""
+          Just val ->
+            if val == Winner then
+              " winner"
+            else
+              ""
+    in
+      div [ class "cardContainer", id ("card" ++ toString index), onClick <| Hold index ]
+        [ div [ class <| displayStatus model.cardStatusList model.heldCards index ++ isWinner ]
+          [ div [ class "topLeft" ]  [ text <| displayVal model.hand index ]
+          , img [ class "cardSuit", src <| displayImg model.hand index ] []
+          , div [ class "bottomRight" ]  [ text <| displayVal model.hand index ]
+          ]
         ]
-      ]
 
 makeHeldHtml : Model -> Int -> Html Msg
 makeHeldHtml model index =

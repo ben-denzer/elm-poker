@@ -130,6 +130,10 @@ body {
         align-items: center;
         background-color: #fff;
 
+        &.winner {
+          background-color: yellow;
+        }
+
         .topLeft,
         .bottomRight {
           position: absolute;

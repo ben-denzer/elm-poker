@@ -29,7 +29,7 @@ main =
 init : (Model, Cmd Msg)
 init =
   (
-    { cards                   = shuffleDeck (makeDeck <| List.range 1 13) (makeTimeInt 23498)
+    { cards                   = [(1, "H"), (3, "S"), (5, "H"), (7, "H"), (9, "H")]--shuffleDeck (makeDeck <| List.range 1 13) (makeTimeInt 23498)
     , bet                     = 1
     , cardStatusList          = List.repeat 5 FaceDown
     , cardWinnerList          = List.repeat 5 NotAWinner
@@ -38,6 +38,7 @@ init =
     , dealOrDraw              = "Deal"
     , gameStatus              = Begin
     , hand                    = []
+    , handStatus              = NoWinner
     , heldCards               = []
     , initialSeed             = Time.millisecond * 24747
     , seed                    = floor <| Time.inMilliseconds 98798709.97
@@ -113,10 +114,15 @@ update msg model =
         else
           if model.currentlyFlippingCards == True then
             let
-              winnerList : List CardWinnerStatus
+              winnerList : (HandStatus, List CardWinnerStatus)
               winnerList = checkForWinners model.hand
             in
-            ( { model | currentlyFlippingCards = False, cardWinnerList = winnerList }, Cmd.none )
+            ( { model
+              | currentlyFlippingCards = False
+              , cardWinnerList = Tuple.second winnerList
+              , handStatus = Tuple.first winnerList
+              }, Cmd.none
+            )
           else
             ( { model | initialSeed = Time.inMilliseconds time }, Cmd.none )
     PlayerPays -> (model, Cmd.none)
@@ -168,6 +174,7 @@ view model =
       [ button [ onClick <| RaiseBet nextBet ]      [ text <| "Bet " ++ toString nextBet ]
       , button [ onClick <| RaiseBet 5 ]            [ text <| "Bet Max" ]
       , button [ onClick <| DealOrDraw model.seed ] [ text model.dealOrDraw ]
+      , div [] [ text <| toString model.handStatus ]
       ]
     ]
 
