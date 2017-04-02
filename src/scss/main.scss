@@ -8,6 +8,20 @@
   box-sizing: border-box;
   justify-content: center;
 
+  #payTable {
+    display: flex;
+    flex-direction: column;
+
+    .payRow {
+      display: flex;
+      justify-content: space-between;
+
+      .payRowCol {
+        min-width: 220px;
+      }
+    }
+  }
+
   #heldRow,
   #cardRow {
     display: flex;
@@ -16,7 +30,7 @@
   }
 
   #heldRow {
-    min-height: 30px;
+    min-height: 20px;
   }
 
   .holdContainer,
@@ -33,55 +47,58 @@
     margin: 10px;
   }
 
-  .FaceDown,
-  .FaceUp {
+  .card {
     position: relative;
     height: 190px;
     width: 130px;
-    margin: 10px;
+    margin: 0 10px 10px;
     border: 2px solid black;
     border-radius: 10px;
-  }
 
-  .FaceDown {
-    background-color: blue;
+    &.FaceDown {
+      background-color: blue;
 
-    .topLeft,
-    .cardSuit,
-    .bottomRight {
-      display: none;
-    }
-  }
-
-  .FaceUp {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    .topLeft,
-    .bottomRight {
-      position: absolute;
-      font-size: 45px;
-      font-family: Arial, Helvetica, sans-serif;
+      .topLeft,
+      .cardSuit,
+      .bottomRight {
+        display: none;
+      }
     }
 
-    .topLeft {
-      top: 0;
-      left: 10px;
-    }
-
-    .bottomRight {
-      bottom: 0;
-      right: 10px;
-    }
-
-    .cardSuit {
-      height: 50px;
-      width: auto;
-      font-size: 60px;
+    &.FaceUp {
       display: flex;
       justify-content: center;
       align-items: center;
+
+      .topLeft,
+      .bottomRight {
+        position: absolute;
+        font-size: 45px;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      .topLeft {
+        top: 0;
+        left: 10px;
+      }
+
+      .bottomRight {
+        bottom: 0;
+        right: 10px;
+      }
+
+      .cardSuit {
+        height: 50px;
+        width: auto;
+        font-size: 60px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      &.held {
+        background-color: lightskyblue;
+      }
     }
   }
 

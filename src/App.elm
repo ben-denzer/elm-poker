@@ -187,36 +187,51 @@ displayIfHeld index heldCards =
     True -> "HELD"
     False -> ""
 
+displayImg : CardList -> Int -> String
+displayImg hand index =
+  let
+    suit = case Tuple.second <| getCardVal hand index of
+      "C" -> "clubs"
+      "D" -> "diamonds"
+      "H" -> "hearts"
+      "S" -> "spades"
+      default -> "cardback" -- error case
+  in
+    "https://bdenzer.com/projects/videopoker/images/" ++ suit ++ ".png"
+
+displayVal : CardList -> Int -> String
+displayVal hand index =
+  let
+    cardVal = Tuple.first <| getCardVal hand index
+  in
+  case cardVal of
+    13 -> "K"
+    12 -> "Q"
+    11 -> "J"
+    1  -> "A"
+    default -> toString cardVal
+
+displayStatus : List CardStatus -> List Int -> Int -> String
+displayStatus cardStatusList heldList index =
+  let
+    cardFaceStatus : List CardStatus -> Int -> String
+    cardFaceStatus statusList index =
+      case Array.get index <| Array.fromList statusList of
+        Nothing -> ""
+        Just val ->  toString val
+
+    cardHeldStatus : List Int -> Int -> String
+    cardHeldStatus heldCards index =
+      case List.member index heldCards of
+        False -> ""
+        True -> "held"
+  in
+    "card " ++ (cardFaceStatus cardStatusList index) ++ " " ++ (cardHeldStatus heldList index)
 
 makeCardHtml : Model -> Int -> Html Msg
 makeCardHtml model index =
-  let
-    displayVal : CardList -> Int -> String
-    displayVal hand index =
-      let
-        cardVal = Tuple.first <| getCardVal hand index
-      in
-      case cardVal of
-        13 -> "K"
-        12 -> "Q"
-        11 -> "J"
-        1  -> "A"
-        default -> toString cardVal
-
-    displayImg : CardList -> Int -> String
-    displayImg hand index =
-      let
-        suit = case Tuple.second <| getCardVal hand index of
-          "C" -> "clubs"
-          "D" -> "diamonds"
-          "H" -> "hearts"
-          "S" -> "spades"
-          default -> "cardback" -- error case
-      in
-        "https://bdenzer.com/projects/videopoker/images/" ++ suit ++ ".png"
-  in
     div [ class "cardContainer", id ("card" ++ toString index), onClick <| Hold index ]
-      [ div [ class <| "card " ++ (toString <| Array.get index <| Array.fromList model.cardStatusList) ]
+      [ div [ class <| displayStatus model.cardStatusList model.heldCards index ]
         [ div [ class "topLeft" ]  [ text <| displayVal model.hand index ]
         , img [ class "cardSuit", src <| displayImg model.hand index ] []
         , div [ class "bottomRight" ]  [ text <| displayVal model.hand index ]
@@ -226,6 +241,17 @@ makeCardHtml model index =
 makeHeldHtml : Model -> Int -> Html Msg
 makeHeldHtml model index =
   div [ class "holdContainer" ] [ displayIfHeld index model.heldCards |> text ]
+
+makePayTableRow : String -> Int -> Html Msg
+makePayTableRow str int =
+  div [ class "payRow" ]
+  [ div [ class "payRowCol payRowLabel" ]   [ text str ]
+  , div [ class "payRowCol payOne" ]        [ text <| toString int ]
+  , div [ class "payRowCol payTwo" ]        [ text <| toString <| int * 2 ]
+  , div [ class "payRowCol payThree" ]      [ text <| toString <| int * 3 ]
+  , div [ class "payRowCol payFour" ]       [ text <| toString <| int * 4 ]
+  , div [ class "payRowCol payFive" ]       [ text <| toString <| int * 5 ]
+  ]
 
 
 view : Model -> Html Msg
@@ -246,13 +272,16 @@ view model =
     heldBlocks = List.map makeEachHeldBlock <| List.range 0 4
   in
     div [ id "gameArea" ]
-      [ div [ id "heldRow" ] heldBlocks,
-        div [ id "cardRow" ] cards,
-        div [ id "gameButtonRow" ]
-        [ button [ onClick <| DealOrDraw model.seed ] [ text model.dealOrDraw ]
-        , div [] [ text "" ]
-        ]
+    [ div [ id "payTable" ]
+      [ div [] [ makePayTableRow "Jacks or Better" 1 ]
+      ],
+      div [ id "heldRow" ] heldBlocks,
+      div [ id "cardRow" ] cards,
+      div [ id "gameButtonRow" ]
+      [ button [ onClick <| DealOrDraw model.seed ] [ text model.dealOrDraw ]
+      , div [] [ text "" ]
       ]
+    ]
 
 -- Subscriptions
 
