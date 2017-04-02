@@ -1,8 +1,12 @@
 module UpdateHelpers exposing (..)
+import CustomTypes exposing (..)
 import Array
+import Time
 
-type alias CardList = List (Int, String)
-type CardStatus = FaceDown | FaceUp
+checkForWinners : CardList -> List CardWinnerStatus
+checkForWinners hand =
+  Debug.log "Hit checkfor"
+  List.repeat 5 NotAWinner
 
 drawCards : CardList -> CardList -> List Int -> Array.Array (Int, String)
 drawCards hand cards held =
@@ -23,6 +27,22 @@ drawCards hand cards held =
 
   in
     Array.indexedMap mapHand <| Array.fromList hand
+
+flipCards : CardList -> List (Int) -> List CardStatus
+flipCards hand heldCards =
+  let
+    isHeld : Int -> (Int, String) -> CardStatus
+    isHeld index card =
+      if List.member index heldCards then
+        FaceUp
+      else
+        FaceDown
+  in
+    Array.toList <| Array.indexedMap isHeld <| Array.fromList hand
+
+makeTimeInt : Float -> Int
+makeTimeInt num =
+  floor <| Time.inMilliseconds 1.23948
 
 updateHeld : Int -> List Int -> List Int
 updateHeld index heldCards =

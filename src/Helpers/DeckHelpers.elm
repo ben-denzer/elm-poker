@@ -1,7 +1,6 @@
 module DeckHelpers exposing (makeDeck, shuffleDeck)
 import Random
 
--- Make my deck, shuffle it
 suits : List String
 suits = ["C", "D", "H", "S"]
 
