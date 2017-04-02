@@ -148,7 +148,7 @@ view model =
     payRows = List.reverse <| List.map makePayTableRow allHands
   in
     div [ id "gameArea" ]
-    [ div [ id "payTable" ]
+    [ div [ id "payTable", class <| "bet" ++ toString model.bet ]
       [ div [] payRows
       ],
       div [ id "heldRow" ] heldBlocks,

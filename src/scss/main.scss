@@ -7,7 +7,7 @@ body {
     align-items: center;
     width: 80%;
     margin: 0 auto;
-    padding: 50px;
+    padding: 10px 50px 20px;
     box-sizing: border-box;
     justify-content: center;
 
@@ -23,23 +23,51 @@ body {
       font-size: 18px;
       color: yellow;
 
+      &.bet1 {
+        .payOne {
+          background-color: darkred;
+        }
+      }
+
+      &.bet2 {
+        .payTwo {
+          background-color: darkred;
+        }
+      }
+
+      &.bet3 {
+        .payThree {
+          background-color: darkred;
+        }
+      }
+
+      &.bet4 {
+        .payFour {
+          background-color: darkred;
+        }
+      }
+
+      &.bet5 {
+        .payFive {
+          background-color: darkred;
+        }
+      }
+
       .payRow {
         display: flex;
-        justify-content: space-between;
+        justify-content: center;
         width: 100%;
 
         .payRowCol {
           width: 15%;
           text-align: right;
           padding: 0 5px;
-          border-right: 1px solid black;
+          border-left: 1px solid black;
 
           &.payRowLabel {
+            width: 20%;
+            border: 0;
             text-align: left;
-          }
-
-          &.payFive {
-            border-right: 0;
           }
         }
       }
