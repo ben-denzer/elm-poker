@@ -33,6 +33,7 @@ init =
     , bet                     = 1
     , cardStatusList          = List.repeat 5 FaceDown
     , cardWinnerList          = List.repeat 5 NotAWinner
+    , coinVal                 = 0.25
     , currentlyFlippingCards  = False
     , dealOrDraw              = "Deal"
     , gameStatus              = Begin
@@ -40,7 +41,7 @@ init =
     , heldCards               = []
     , initialSeed             = Time.millisecond * 24747
     , seed                    = floor <| Time.inMilliseconds 98798709.97
-    , total                   = 100.00
+    , total                   = 400
     }
     , Cmd.none
   )
@@ -58,7 +59,8 @@ update msg model =
             dealOrDraw = "Draw",
             gameStatus = Draw,
             heldCards = [],
-            seed = (floor model.initialSeed) + last
+            seed = (floor model.initialSeed) + last,
+            total = model.total - model.bet
           }, Cmd.none
         )
       else
@@ -158,9 +160,13 @@ view model =
       ],
       div [ id "heldRow" ] heldBlocks,
       div [ id "cardRow" ] cards,
+      div [ id "gameStatusRow" ]
+      [ div [ id "currentBet" ]   [ text <| "BET: " ++ toString model.bet ]
+      , div [ id "currentTotal" ] [ text <| displayTotal model.total model.coinVal ]
+      ],
       div [ id "gameButtonRow" ]
-      [ button [ onClick <| RaiseBet nextBet ] [ text <| "Bet " ++ toString nextBet ]
-      , button [ onClick <| RaiseBet 5 ] [ text <| "Bet Max" ]
+      [ button [ onClick <| RaiseBet nextBet ]      [ text <| "Bet " ++ toString nextBet ]
+      , button [ onClick <| RaiseBet 5 ]            [ text <| "Bet Max" ]
       , button [ onClick <| DealOrDraw model.seed ] [ text model.dealOrDraw ]
       ]
     ]

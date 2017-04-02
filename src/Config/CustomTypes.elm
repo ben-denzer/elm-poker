@@ -17,6 +17,7 @@ type alias Model =
   , bet                     : Int
   , cardStatusList          : List CardStatus
   , cardWinnerList          : List CardWinnerStatus
+  , coinVal                 : Float
   , currentlyFlippingCards  : Bool
   , dealOrDraw              : String
   , gameStatus              : GameStatus
@@ -24,7 +25,7 @@ type alias Model =
   , heldCards               : List Int
   , initialSeed             : Float
   , seed                    : Int
-  , total                   : Float
+  , total                   : Int
   }
 
 type Msg =

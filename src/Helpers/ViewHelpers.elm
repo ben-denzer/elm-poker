@@ -53,6 +53,19 @@ displayStatus cardStatusList heldList index =
   in
     "card " ++ (cardFaceStatus cardStatusList index) ++ " " ++ (cardHeldStatus heldList index)
 
+displayTotal : Int -> Float -> String
+displayTotal total coinVal =
+  let
+    subTotal = toFloat total * coinVal
+    testCase = toFloat <| truncate subTotal
+  in
+    if subTotal == testCase then
+      "$" ++ (toString subTotal) ++ ".00"
+    else if subTotal - testCase == 0.5 then
+      "$" ++ (toString subTotal) ++ "0"
+    else
+      "$" ++ toString subTotal
+
 displayVal : CardList -> Int -> String
 displayVal hand index =
   let
