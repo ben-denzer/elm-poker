@@ -1,14 +1,8 @@
 module DeckHelpers exposing (makeDeck, shuffleDeck)
 import Random
 
-suits : List String
-suits = ["C", "D", "H", "S"]
-
 makeCard : String -> Int -> (Int, String)
 makeCard string val = (val, string)
-
-makeSuit : String -> Int -> (Int, String)
-makeSuit suit = makeCard suit
 
 makeDeck : List Int -> List (Int, String)
 makeDeck values =
@@ -19,6 +13,9 @@ makeDeck values =
     spades    = List.map (makeSuit "S") values
   in
     List.append clubs <| List.append diamonds <| List.append hearts spades
+
+makeSuit : String -> Int -> (Int, String)
+makeSuit suit = makeCard suit
 
 shuffleDeck : List (Int, String) -> Int -> List (Int, String)
 shuffleDeck original seed =
@@ -32,3 +29,6 @@ shuffleDeck original seed =
     sorted = zipped |> List.sortBy Tuple.first
   in
     List.unzip sorted |> Tuple.second
+
+suits : List String
+suits = ["C", "D", "H", "S"]
