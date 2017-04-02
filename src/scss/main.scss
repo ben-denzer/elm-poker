@@ -1,128 +1,142 @@
-#gameArea {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 80%;
-  margin: 0 auto;
-  padding: 50px;
-  box-sizing: border-box;
-  justify-content: center;
+body {
+  background-color: darkgreen;
 
-  #payTable {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    border: 3px solid black;
-    border-radius: 5px;
-
-    .payRow {
-      display: flex;
-      justify-content: space-between;
-      width: 100%;
-      border-bottom: 1px solid black;
-
-      &.Jacks_Or_Better {
-        border-bottom: 0;
-      }
-
-      .payRowCol {
-        width: 15%;
-        text-align: right;
-        padding: 0 5px;
-        border-right: 1px solid black;
-
-        &.payRowLabel {
-          text-align: left;
-        }
-
-        &.payFive {
-          border-right: 0;
-        }
-      }
-    }
-  }
-
-  #heldRow,
-  #cardRow {
-    display: flex;
-    width: 100%;
-    justify-content: space-around;
-  }
-
-  #heldRow {
-    min-height: 20px;
-  }
-
-  .holdContainer,
-  .cardContainer {
-    width: 130px;
-    text-align: center;
-  }
-
-  .cardContainer {
-    height: 220px;
+  #gameArea {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 10px;
-  }
+    width: 80%;
+    margin: 0 auto;
+    padding: 50px;
+    box-sizing: border-box;
+    justify-content: center;
 
-  .card {
-    position: relative;
-    height: 190px;
-    width: 130px;
-    margin: 0 10px 10px;
-    border: 2px solid black;
-    border-radius: 10px;
+    #payTable {
+      background-color: darkblue;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      border: 3px solid black;
+      border-radius: 5px;
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: bold;
+      font-size: 18px;
+      color: yellow;
 
-    &.FaceDown {
-      background-color: blue;
+      .payRow {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
 
-      .topLeft,
-      .cardSuit,
-      .bottomRight {
-        display: none;
+        .payRowCol {
+          width: 15%;
+          text-align: right;
+          padding: 0 5px;
+          border-right: 1px solid black;
+
+          &.payRowLabel {
+            text-align: left;
+          }
+
+          &.payFive {
+            border-right: 0;
+          }
+        }
       }
     }
 
-    &.FaceUp {
+    #heldRow,
+    #cardRow {
       display: flex;
-      justify-content: center;
+      width: 100%;
+      justify-content: space-around;
+    }
+
+    #heldRow {
+      margin-top: 20px;
+      min-height: 20px;
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: bold;
+      color: #fff;
+    }
+
+    #cardRow {
+      margin-top: -10px;
+    }
+
+    .holdContainer,
+    .cardContainer {
+      width: 130px;
+      text-align: center;
+    }
+
+    .cardContainer {
+      height: 220px;
+      display: flex;
+      flex-direction: column;
       align-items: center;
+      margin: 10px;
+    }
 
-      .topLeft,
-      .bottomRight {
-        position: absolute;
-        font-size: 45px;
-        font-family: Arial, Helvetica, sans-serif;
+    .card {
+      position: relative;
+      height: 190px;
+      width: 130px;
+      margin: 0 10px 10px;
+      border: 2px solid black;
+      border-radius: 10px;
+
+      &.FaceDown {
+        background-color: blue;
+        background-image: url('https://bdenzer.com/projects/videopoker/images/cardback.png');
+
+        .topLeft,
+        .cardSuit,
+        .bottomRight {
+          display: none;
+        }
       }
 
-      .topLeft {
-        top: 0;
-        left: 10px;
-      }
-
-      .bottomRight {
-        bottom: 0;
-        right: 10px;
-      }
-
-      .cardSuit {
-        height: 50px;
-        width: auto;
-        font-size: 60px;
+      &.FaceUp {
         display: flex;
         justify-content: center;
         align-items: center;
-      }
+        background-color: #fff;
 
-      &.held {
-        background-color: lightskyblue;
+        .topLeft,
+        .bottomRight {
+          position: absolute;
+          font-size: 45px;
+          font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .topLeft {
+          top: 0;
+          left: 10px;
+        }
+
+        .bottomRight {
+          bottom: 0;
+          right: 10px;
+        }
+
+        .cardSuit {
+          height: 50px;
+          width: auto;
+          font-size: 60px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+
+        &.held {
+          background-color: lightskyblue;
+        }
       }
     }
-  }
 
-  #gameButtonRow {
-    margin-top: 40px;
+    #gameButtonRow {
+      margin-top: 40px;
+    }
   }
 }

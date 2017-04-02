@@ -98,6 +98,13 @@ makePayTableRow hand =
     rowClassName : (String, Int) -> String
     rowClassName hand =
       String.join "_" <| String.split " " <| Tuple.first hand
+
+    checkForBonus : (String, Int) -> Int
+    checkForBonus hand =
+      if Tuple.first hand == "Royal Flush" then
+        Tuple.second hand * 16
+      else
+        Tuple.second hand * 5
   in
     div [ class <| "payRow " ++ rowClassName hand ]
     [ div [ class "payRowCol payRowLabel" ]   [ text <| handName hand ]
@@ -105,5 +112,5 @@ makePayTableRow hand =
     , div [ class "payRowCol payTwo" ]        [ text <| toString <| handVal hand * 2 ]
     , div [ class "payRowCol payThree" ]      [ text <| toString <| handVal hand * 3 ]
     , div [ class "payRowCol payFour" ]       [ text <| toString <| handVal hand * 4 ]
-    , div [ class "payRowCol payFive" ]       [ text <| toString <| handVal hand * 5 ]
+    , div [ class "payRowCol payFive" ]       [ text <| toString <| checkForBonus hand ]
     ]
