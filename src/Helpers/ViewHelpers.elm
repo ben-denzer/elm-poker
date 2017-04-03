@@ -118,12 +118,15 @@ makeHeldHtml model index =
   div [ class "holdContainer" ] [ displayIfHeld index model.heldCards |> text ]
 
 
-makePayTableRow : WinningHand -> Html Msg
-makePayTableRow hand =
+makePayTableRow : Model -> WinningHand -> Html Msg
+makePayTableRow model hand =
   let
-    rowClassName : WinningHand -> String
-    rowClassName hand =
-      String.join "_" <| String.split " " <| hand.handName
+    activeHand : WinningHand -> String
+    activeHand hand =
+      if hand.msgName == model.handStatus then
+        "activeHand"
+      else
+        ""
 
     checkForBonus : WinningHand -> Int
     checkForBonus hand =
@@ -132,7 +135,7 @@ makePayTableRow hand =
       else
         hand.payVal * 5
   in
-    div [ class <| "payRow " ++ rowClassName hand ]
+    div [ class <| "payRow " ++ activeHand hand ]
     [ div [ class "payRowCol payRowLabel" ]   [ text hand.handName ]
     , div [ class "payRowCol payOne" ]        [ text <| toString hand.payVal ]
     , div [ class "payRowCol payTwo" ]        [ text <| toString <| hand.payVal * 2 ]

@@ -232,7 +232,7 @@ view model =
     nextBet = getNextBet model.bet
 
     payRows : List (Html Msg)
-    payRows = List.reverse <| List.map makePayTableRow allHands
+    payRows = List.reverse <| List.map (makePayTableRow model) allHands
   in
     div [ id "gameArea" ]
     [ div [ id "payTable", class <| "bet" ++ toString model.bet ]

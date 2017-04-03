@@ -58,6 +58,10 @@ body {
         justify-content: center;
         width: 100%;
 
+        &.activeHand {
+          background-color: #222;
+        }
+
         .payRowCol {
           width: 15%;
           text-align: right;
