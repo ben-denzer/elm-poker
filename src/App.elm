@@ -29,7 +29,7 @@ main =
 init : (Model, Cmd Msg)
 init =
   (
-    { cards                   = [(1, "H"), (3, "S"), (5, "H"), (7, "H"), (9, "H")]--shuffleDeck (makeDeck <| List.range 1 13) (makeTimeInt 23498)
+    { cards                   = shuffleDeck (makeDeck <| List.range 1 13) (makeTimeInt 23498)
     , bet                     = 1
     , cardStatusList          = List.repeat 5 FaceDown
     , cardWinnerList          = List.repeat 5 NotAWinner
@@ -112,15 +112,29 @@ update msg model =
               }, Cmd.none
             )
         else
+          --------- PAYOUT FUNCTION --------
           if model.currentlyFlippingCards == True then
             let
               winnerList : (HandStatus, List CardWinnerStatus)
               winnerList = checkForWinners model.hand
             in
+              if Tuple.first winnerList /= NoWinner then
+                ( { model
+                  | currentlyFlippingCards = False
+                  , cardWinnerList = Tuple.second winnerList
+                  , handStatus = Tuple.first winnerList
+                  }, Cmd.none
+                )
+              else
+                ( { model
+                  | currentlyFlippingCards = False
+                  , cardWinnerList = Tuple.second winnerList
+                  , handStatus = Tuple.first winnerList
+                  }, Cmd.none
+                )
+          else if model.gameStatus == Begin then
             ( { model
-              | currentlyFlippingCards = False
-              , cardWinnerList = Tuple.second winnerList
-              , handStatus = Tuple.first winnerList
+              | cards = shuffleDeck (makeDeck <| List.range 1 13) (floor <| Time.inMilliseconds time )
               }, Cmd.none
             )
           else
