@@ -5,17 +5,17 @@ import Html exposing (Html, div, img, text)
 import Html.Attributes exposing (class, id, src)
 import Html.Events exposing (onClick)
 
-allHands : List (String, Int)
+allHands : List WinningHand
 allHands =
-  [ ("Jacks Or Better", 1)
-  , ("Two Pair", 2)
-  , ("Three Of A Kind", 3)
-  , ("Straight", 4)
-  , ("Flush", 6)
-  , ("Full House", 9)
-  , ("Four Of A Kind", 25)
-  , ("Straight Flush", 50)
-  , ("Royal Flush", 250)
+  [ { msgName = JacksOrBetter,  handName = "Jacks Or Better", payVal = 1 }
+  , { msgName = TwoPair,        handName = "Two Pair",        payVal = 2 }
+  , { msgName = ThreeOfAKind,   handName = "Three of a Kind", payVal = 3 }
+  , { msgName = Straight,       handName = "Straight",        payVal = 4 }
+  , { msgName = Flush,          handName = "Flush",           payVal = 6 }
+  , { msgName = FullHouse,      handName = "Full House",      payVal = 9 }
+  , { msgName = FourOfAKind,    handName = "Four of a Kind",  payVal = 25 }
+  , { msgName = StraightFlush,  handName = "Straight Flush",  payVal = 50 }
+  , { msgName = RoyalFlush,     handName = "Royal Flush",     payVal = 250 }
   ]
 
 displayIfHeld : Int -> List Int -> String
@@ -118,31 +118,25 @@ makeHeldHtml model index =
   div [ class "holdContainer" ] [ displayIfHeld index model.heldCards |> text ]
 
 
-makePayTableRow : (String, Int) -> Html Msg
+makePayTableRow : WinningHand -> Html Msg
 makePayTableRow hand =
   let
-    handName : (String, Int) -> String
-    handName hand = Tuple.first hand
-
-    handVal : (String, Int) -> Int
-    handVal hand = Tuple.second hand
-
-    rowClassName : (String, Int) -> String
+    rowClassName : WinningHand -> String
     rowClassName hand =
-      String.join "_" <| String.split " " <| Tuple.first hand
+      String.join "_" <| String.split " " <| hand.handName
 
-    checkForBonus : (String, Int) -> Int
+    checkForBonus : WinningHand -> Int
     checkForBonus hand =
-      if Tuple.first hand == "Royal Flush" then
-        Tuple.second hand * 16
+      if hand.msgName == RoyalFlush then
+        hand.payVal * 16
       else
-        Tuple.second hand * 5
+        hand.payVal * 5
   in
     div [ class <| "payRow " ++ rowClassName hand ]
-    [ div [ class "payRowCol payRowLabel" ]   [ text <| handName hand ]
-    , div [ class "payRowCol payOne" ]        [ text <| toString <| handVal hand ]
-    , div [ class "payRowCol payTwo" ]        [ text <| toString <| handVal hand * 2 ]
-    , div [ class "payRowCol payThree" ]      [ text <| toString <| handVal hand * 3 ]
-    , div [ class "payRowCol payFour" ]       [ text <| toString <| handVal hand * 4 ]
+    [ div [ class "payRowCol payRowLabel" ]   [ text hand.handName ]
+    , div [ class "payRowCol payOne" ]        [ text <| toString hand.payVal ]
+    , div [ class "payRowCol payTwo" ]        [ text <| toString <| hand.payVal * 2 ]
+    , div [ class "payRowCol payThree" ]      [ text <| toString <| hand.payVal * 3 ]
+    , div [ class "payRowCol payFour" ]       [ text <| toString <| hand.payVal * 4 ]
     , div [ class "payRowCol payFive" ]       [ text <| toString <| checkForBonus hand ]
     ]

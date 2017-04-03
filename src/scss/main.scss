@@ -73,6 +73,15 @@ body {
       }
     }
 
+    #displayWinningHand {
+      margin-top: 5px;
+      min-height: 35px;
+      font-size: 28px;
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: bold;
+      color: #ccc;
+    }
+
     #heldRow,
     #cardRow {
       display: flex;
@@ -81,7 +90,7 @@ body {
     }
 
     #heldRow {
-      margin-top: 20px;
+      margin-top: 5px;
       min-height: 20px;
       font-family: Arial, Helvetica, sans-serif;
       font-weight: bold;
@@ -162,6 +171,10 @@ body {
 
         &.held {
           background-color: lightskyblue;
+
+          &.winner {
+            background-color: yellow;
+          }
         }
       }
     }

@@ -69,6 +69,7 @@ update msg model =
             -- shuffle for next hand
             cards = shuffleDeck model.cards <| floor model.initialSeed + last,
             cardStatusList = flipCards model.hand model.heldCards,
+            cardWinnerList = List.repeat 5 NotAWinner,
             gameStatus = GameOver,
             hand = Array.toList <| drawCards model.hand model.cards model.heldCards,
             dealOrDraw = "Deal"
@@ -76,6 +77,22 @@ update msg model =
         )
     GenerateSeed last ->
       ( { model | seed = (floor model.initialSeed) + last }, Cmd.none )
+    MakeFlush ->
+      ( { model
+          | cards =
+          [ (1, "H")
+          , (3, "H")
+          , (5, "H")
+          , (2, "H")
+          , (4, "H")
+          , (1, "S")
+          , (3, "C")
+          , (9, "H")
+          , (11, "H")
+          , (8, "H")
+          ]
+        }, Cmd.none
+      )
     Tick time ->
       let
         cardsDown : Bool
@@ -154,6 +171,15 @@ update msg model =
 view : Model -> Html Msg
 view model =
   let
+    displayWinner : String
+    displayWinner =
+      if model.handStatus /= NoWinner then
+        case List.head <| List.filter (\x -> x.msgName == model.handStatus) allHands of
+          Nothing -> "Error"
+          Just val ->  val.handName
+      else
+        ""
+
     makeEachCard : Int -> Html Msg
     makeEachCard =
       makeCardHtml model
@@ -177,19 +203,21 @@ view model =
     div [ id "gameArea" ]
     [ div [ id "payTable", class <| "bet" ++ toString model.bet ]
       [ div [] payRows
-      ],
-      div [ id "heldRow" ] heldBlocks,
-      div [ id "cardRow" ] cards,
-      div [ id "gameStatusRow" ]
-      [ div [ id "currentBet" ]   [ text <| "BET: " ++ toString model.bet ]
-      , div [ id "currentTotal" ] [ text <| displayTotal model.total model.coinVal ]
-      ],
-      div [ id "gameButtonRow" ]
-      [ button [ onClick <| RaiseBet nextBet ]      [ text <| "Bet " ++ toString nextBet ]
-      , button [ onClick <| RaiseBet 5 ]            [ text <| "Bet Max" ]
-      , button [ onClick <| DealOrDraw model.seed ] [ text model.dealOrDraw ]
-      , div [] [ text <| toString model.handStatus ]
       ]
+      , div [ id "displayWinningHand" ] [ text displayWinner ]
+      , div [ id "heldRow" ] heldBlocks
+      , div [ id "cardRow" ] cards
+      , div [ id "gameStatusRow" ]
+        [ div [ id "currentBet" ]   [ text <| "BET: " ++ toString model.bet ]
+        , div [ id "currentTotal" ] [ text <| displayTotal model.total model.coinVal ]
+        ]
+      , div [ id "gameButtonRow" ]
+        [ button [ onClick MakeFlush ]                [ text "Test-Hand = Flush" ]
+        , button [ onClick <| RaiseBet nextBet ]      [ text <| "Bet " ++ toString nextBet ]
+        , button [ onClick <| RaiseBet 5 ]            [ text <| "Bet Max" ]
+        , button [ onClick <| DealOrDraw model.seed ] [ text model.dealOrDraw ]
+        , div [] [ text <| toString model.handStatus ]
+        ]
     ]
 
 -- Subscriptions
