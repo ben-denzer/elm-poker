@@ -9,15 +9,45 @@ checkForWinners hand =
     isFlush : CardList -> Bool
     isFlush hand =
       let
+        suitList : List String
         suitList = List.map Tuple.second hand
       in
         case List.head suitList of
           Nothing -> False
           Just val ->
             List.all (\x -> x == val) suitList
+
+    isStraight : CardList -> Bool
+    isStraight hand =
+      let
+        sortedVals : List Int
+        sortedVals = List.sort <| List.map Tuple.first hand
+
+        lowest : Int
+        lowest =
+          case List.head sortedVals of
+            Nothing -> -100
+            Just val -> val
+
+        highest : Int
+        highest =
+          case List.head <| List.drop 4 sortedVals of
+            Nothing -> -100
+            Just val -> val
+      in
+        if highest - lowest == 4 then
+          True
+        else if List.sum sortedVals == 47 then
+          True
+        else
+          False
   in
-    if isFlush hand then
+    if isFlush hand && isStraight hand then
+      (StraightFlush, List.repeat 5 Winner)
+    else if isFlush hand then
       (Flush, List.repeat 5 Winner)
+    else if isStraight hand then
+      (Straight, List.repeat 5 Winner)
     else
       (NoWinner, List.repeat 5 NotAWinner)
 

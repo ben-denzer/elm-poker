@@ -51,120 +51,154 @@ init =
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
-  case msg of
-    DealOrDraw last->
-      if model.dealOrDraw == "Deal" then
-        ( { model |
-            cardStatusList = List.repeat 5 FaceDown,
-            hand = Array.toList <| Array.slice 0 5 <| Array.fromList model.cards,
-            dealOrDraw = "Draw",
-            gameStatus = Draw,
-            heldCards = [],
-            seed = (floor model.initialSeed) + last,
-            total = model.total - model.bet
-          }, Cmd.none
-        )
-      else
-        ( { model |
-            -- shuffle for next hand
-            cards = shuffleDeck model.cards <| floor model.initialSeed + last,
-            cardStatusList = flipCards model.hand model.heldCards,
-            cardWinnerList = List.repeat 5 NotAWinner,
-            gameStatus = GameOver,
-            hand = Array.toList <| drawCards model.hand model.cards model.heldCards,
-            dealOrDraw = "Deal"
-          }, Cmd.none
-        )
-    GenerateSeed last ->
-      ( { model | seed = (floor model.initialSeed) + last }, Cmd.none )
-    MakeFlush ->
-      ( { model
-          | cards =
-          [ (1, "H")
-          , (3, "H")
-          , (5, "H")
-          , (2, "H")
-          , (4, "H")
-          , (1, "S")
-          , (3, "C")
-          , (9, "H")
-          , (11, "H")
-          , (8, "H")
-          ]
-        }, Cmd.none
-      )
-    Tick time ->
-      let
-        cardsDown : Bool
-        cardsDown =
-          if model.gameStatus /= Begin then
-            case List.member FaceDown model.cardStatusList of
-              True -> True
-              False -> False
-          else
-            False
+  let
+    winnerList : (HandStatus, List CardWinnerStatus)
+    winnerList = checkForWinners model.hand
 
-        nextToFlip : Int
-        nextToFlip =
-          case
-            List.head
-            <| List.filter
-              (\x -> Tuple.second x == FaceDown)
-              <| List.map2
-                (\a b -> (a, b))
-                (List.range 0 4)
-                model.cardStatusList
-          of
-            Nothing -> -1
-            Just val -> Tuple.first val
-      in
-        if cardsDown == True then
-          let
-            newStatusList : List CardStatus
-            newStatusList = Array.toList <| Array.set nextToFlip FaceUp <| Array.fromList model.cardStatusList
-          in
-            ( { model
-                | cardStatusList = newStatusList
-                , currentlyFlippingCards = True
-              }, Cmd.none
-            )
+    winnings : Int
+    winnings =
+      case List.head <| List.filter (\x -> x.msgName == Tuple.first winnerList) allHands of
+        Nothing -> 0
+        Just val ->
+          if val.msgName == RoyalFlush && model.bet == 5 then
+            val.payVal * 16
+          else
+            model.bet * val.payVal
+  in
+    case msg of
+      DealOrDraw last->
+        if model.dealOrDraw == "Deal" then
+          ( { model |
+              cardStatusList = List.repeat 5 FaceDown,
+              cardWinnerList = List.repeat 5 NotAWinner,
+              hand = Array.toList <| Array.slice 0 5 <| Array.fromList model.cards,
+              dealOrDraw = "Draw",
+              gameStatus = Draw,
+              heldCards = [],
+              seed = (floor model.initialSeed) + last,
+              total = model.total - model.bet
+            }, Cmd.none
+          )
         else
-          --------- PAYOUT FUNCTION --------
-          if model.currentlyFlippingCards == True then
-            let
-              winnerList : (HandStatus, List CardWinnerStatus)
-              winnerList = checkForWinners model.hand
-            in
-              if Tuple.first winnerList /= NoWinner then
-                ( { model
-                  | currentlyFlippingCards = False
-                  , cardWinnerList = Tuple.second winnerList
-                  , handStatus = Tuple.first winnerList
-                  }, Cmd.none
-                )
-              else
-                ( { model
-                  | currentlyFlippingCards = False
-                  , cardWinnerList = Tuple.second winnerList
-                  , handStatus = Tuple.first winnerList
-                  }, Cmd.none
-                )
-          else if model.gameStatus == Begin then
+          if List.length model.heldCards == 5 then
             ( { model
-              | cards = shuffleDeck (makeDeck <| List.range 1 13) (floor <| Time.inMilliseconds time )
+              | cards = shuffleDeck model.cards <| floor model.initialSeed + last
+              , cardWinnerList = Tuple.second winnerList
+              , dealOrDraw = "Deal"
+              , gameStatus = GameOver
+              , handStatus = Tuple.first winnerList
+              , total = model.total + winnings
               }, Cmd.none
             )
           else
-            ( { model | initialSeed = Time.inMilliseconds time }, Cmd.none )
-    PlayerPays -> (model, Cmd.none)
-    PlayerWins -> (model, Cmd.none)
-    RaiseBet bet ->
-      ( { model | bet = bet }, Cmd.none)
-    Hold index ->
-      if model.dealOrDraw == "Draw" then
-        ( { model | heldCards = updateHeld index model.heldCards }, Cmd.none)
-      else
-        ( model, Cmd.none )
+            ( { model |
+                cards = shuffleDeck model.cards <| floor model.initialSeed + last,
+                cardStatusList = flipCards model.hand model.heldCards,
+                cardWinnerList = List.repeat 5 NotAWinner,
+                gameStatus = GameOver,
+                hand = Array.toList <| drawCards model.hand model.cards model.heldCards,
+                dealOrDraw = "Deal"
+              }, Cmd.none
+            )
+      GenerateSeed last ->
+        ( { model | seed = (floor model.initialSeed) + last }, Cmd.none )
+      MakeFlush ->
+        ( { model
+            | cards =
+            [ (1, "H")
+            , (3, "H")
+            , (5, "H")
+            , (2, "H")
+            , (4, "H")
+            , (1, "S")
+            , (3, "C")
+            , (9, "H")
+            , (11, "H")
+            , (8, "H")
+            ]
+          }, Cmd.none
+        )
+      Tick time ->
+        let
+          cardsDown : Bool
+          cardsDown =
+            if model.gameStatus /= Begin then
+              case List.member FaceDown model.cardStatusList of
+                True -> True
+                False -> False
+            else
+              False
+
+          nextToFlip : Int
+          nextToFlip =
+            case
+              List.head
+              <| List.filter
+                (\x -> Tuple.second x == FaceDown)
+                <| List.map2
+                  (\a b -> (a, b))
+                  (List.range 0 4)
+                  model.cardStatusList
+            of
+              Nothing -> -1
+              Just val -> Tuple.first val
+        in
+          if cardsDown == True then
+            let
+              newStatusList : List CardStatus
+              newStatusList = Array.toList <| Array.set nextToFlip FaceUp <| Array.fromList model.cardStatusList
+            in
+              ( { model
+                  | cardStatusList = newStatusList
+                  , currentlyFlippingCards = True
+                }, Cmd.none
+              )
+          else
+            --------- PAYOUT FUNCTION --------
+            if model.currentlyFlippingCards == True then
+                if Tuple.first winnerList /= NoWinner then
+                  if model.gameStatus == GameOver then
+                    ( { model
+                      | currentlyFlippingCards = False
+                      , cardWinnerList = Tuple.second winnerList
+                      , handStatus = Tuple.first winnerList
+                      , total = model.total + winnings
+                      }, Cmd.none
+                    )
+                  else
+                    ( { model
+                      | currentlyFlippingCards = False
+                      , cardWinnerList = Tuple.second winnerList
+                      , handStatus = Tuple.first winnerList
+                      }, Cmd.none
+                    )
+
+                else
+                  ( { model
+                    | currentlyFlippingCards = False
+                    , cardWinnerList = Tuple.second winnerList
+                    , handStatus = Tuple.first winnerList
+                    }, Cmd.none
+                  )
+            else if model.gameStatus == Begin then
+              ( { model
+                | cards = shuffleDeck (makeDeck <| List.range 1 13) (floor <| Time.inMilliseconds time )
+                }, Cmd.none
+              )
+            else
+              ( { model | initialSeed = Time.inMilliseconds time }, Cmd.none )
+      PlayerPays -> (model, Cmd.none)
+      PlayerWins -> (model, Cmd.none)
+      RaiseBet bet ->
+        if model.gameStatus == Draw then
+          ( model, Cmd.none )
+        else
+          ( { model | bet = bet }, Cmd.none)
+      Hold index ->
+        if model.dealOrDraw == "Draw" then
+          ( { model | heldCards = updateHeld index model.heldCards }, Cmd.none)
+        else
+          ( model, Cmd.none )
 
 -- View
 
@@ -204,20 +238,20 @@ view model =
     [ div [ id "payTable", class <| "bet" ++ toString model.bet ]
       [ div [] payRows
       ]
-      , div [ id "displayWinningHand" ] [ text displayWinner ]
-      , div [ id "heldRow" ] heldBlocks
-      , div [ id "cardRow" ] cards
-      , div [ id "gameStatusRow" ]
-        [ div [ id "currentBet" ]   [ text <| "BET: " ++ toString model.bet ]
-        , div [ id "currentTotal" ] [ text <| displayTotal model.total model.coinVal ]
-        ]
-      , div [ id "gameButtonRow" ]
-        [ button [ onClick MakeFlush ]                [ text "Test-Hand = Flush" ]
-        , button [ onClick <| RaiseBet nextBet ]      [ text <| "Bet " ++ toString nextBet ]
-        , button [ onClick <| RaiseBet 5 ]            [ text <| "Bet Max" ]
-        , button [ onClick <| DealOrDraw model.seed ] [ text model.dealOrDraw ]
-        , div [] [ text <| toString model.handStatus ]
-        ]
+    , div [ id "displayWinningHand" ] [ text displayWinner ]
+    , div [ id "heldRow" ] heldBlocks
+    , div [ id "cardRow" ] cards
+    , div [ id "gameStatusRow" ]
+      [ div [ id "currentBet" ]   [ text <| "BET: " ++ toString model.bet ]
+      , div [ id "currentTotal" ] [ text <| displayTotal model.total model.coinVal ]
+      ]
+    , div [ id "gameButtonRow" ]
+      [ button [ onClick MakeFlush ]                [ text "Test-Hand = Flush" ]
+      , button [ onClick <| RaiseBet nextBet ]      [ text <| "Bet " ++ toString nextBet ]
+      , button [ onClick <| RaiseBet 5 ]            [ text <| "Bet Max" ]
+      , button [ onClick <| DealOrDraw model.seed ] [ text model.dealOrDraw ]
+      , div [] [ text <| "GameStatus" ++ toString model.gameStatus ]
+      ]
     ]
 
 -- Subscriptions

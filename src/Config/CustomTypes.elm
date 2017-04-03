@@ -9,8 +9,6 @@ type GameStatus =
   Begin
   | GameOver
   | Draw
-  | Win
-  | Lose
 
 type HandStatus =
   NoWinner
