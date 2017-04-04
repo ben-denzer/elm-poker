@@ -49,6 +49,8 @@ type Msg =
   | RaiseBet Int
   | Tick Time
 
+type alias PairCheck = { val : Int, times : Int }
+
 type alias Time = Float
 
 type alias WinningHand = { msgName : HandStatus, handName : String, payVal : Int }

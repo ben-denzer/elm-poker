@@ -6,4 +6,4 @@ gnome-terminal --geometry=60X15+0-100 -e "bash -c \"cd /home/ben/Documents/proje
 
 gnome-terminal --geometry=60X15+0-0 -e "chromium-browser http://localhost:8000/dev.html"
 
-atom .
+code .

@@ -105,17 +105,17 @@ update msg model =
       MakeFlush ->
         ( { model
             | cards =
-            [ (1, "H")
-            , (3, "H")
-            , (5, "H")
-            , (2, "H")
-            , (4, "H")
-            , (1, "S")
-            , (3, "C")
-            , (9, "H")
-            , (11, "H")
-            , (8, "H")
-            ]
+              [ (1, "H")
+              , (3, "H")
+              , (5, "H")
+              , (2, "H")
+              , (4, "H")
+              , (10, "S")
+              , (11, "C")
+              , (12, "H")
+              , (13, "H")
+              , (1, "H")
+              ]
           }, Cmd.none
         )
       Tick time ->
@@ -143,7 +143,7 @@ update msg model =
               Nothing -> -1
               Just val -> Tuple.first val
         in
-          if cardsDown == True then
+          if cardsDown then
             let
               newStatusList : List CardStatus
               newStatusList = Array.toList <| Array.set nextToFlip FaceUp <| Array.fromList model.cardStatusList

@@ -37,10 +37,44 @@ checkForWinners hand =
       in
         if highest - lowest == 4 then
           True
-        else if List.sum sortedVals == 47 then
+        else if List.length (List.filter (\x -> x > 9) sortedVals) == 4 && List.sum sortedVals == 47 then
           True
         else
           False
+
+    checkForPairs : Int -> List Int -> List PairCheck -> List PairCheck
+    checkForPairs index vals newList =
+      let
+        thisVal : Int
+        thisVal =
+          case List.head <| List.drop index <| List.take (index + 1) <| vals of
+            Nothing -> -1
+            Just val -> val
+
+        makeNewList : Int -> List PairCheck
+        makeNewList val =
+          let
+            filtered : List PairCheck
+            filtered = List.filter (\x -> x.val == val) newList
+          in
+            case List.head filtered of
+              Nothing ->
+                {val = val, times = 1} :: newList
+              Just found ->
+                {val = val, times = found.times + 1} :: List.filter (\x -> x.val /= val) newList
+      in
+        if index == 5 then
+          List.filter (\x -> x.times > 1) newList
+        else
+          checkForPairs (index + 1) vals <| makeNewList thisVal
+
+    getVals : CardList -> List Int
+    getVals list =
+      List.map Tuple.first list
+
+    pairList : List PairCheck
+    pairList =
+      checkForPairs 0 (getVals hand) []
   in
     if isFlush hand && isStraight hand then
       (StraightFlush, List.repeat 5 Winner)
@@ -48,6 +82,25 @@ checkForWinners hand =
       (Flush, List.repeat 5 Winner)
     else if isStraight hand then
       (Straight, List.repeat 5 Winner)
+    else if List.isEmpty pairList == False then
+      if List.length pairList == 1 then
+        case List.head pairList of
+          Nothing -> (NoWinner, List.repeat 5 NotAWinner)
+          Just val ->
+            case val.times of
+              2 ->
+                if (val.val > 10) then
+                  (JacksOrBetter, List.repeat 5 Winner)
+                else
+                  (NoWinner, List.repeat 5 NotAWinner)
+              3 ->
+                (ThreeOfAKind, List.repeat 5 Winner)
+              4 ->
+                (FourOfAKind, List.repeat 5 Winner)
+              default ->
+                (NoWinner, List.repeat 5 NotAWinner)
+      else
+        (NoWinner, List.repeat 5 NotAWinner)
     else
       (NoWinner, List.repeat 5 NotAWinner)
 
