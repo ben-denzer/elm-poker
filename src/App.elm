@@ -74,6 +74,7 @@ update msg model =
               hand = Array.toList <| Array.slice 0 5 <| Array.fromList model.cards,
               dealOrDraw = "Draw",
               gameStatus = Draw,
+              handStatus = NoWinner,
               heldCards = [],
               seed = (floor model.initialSeed) + last,
               total = model.total - model.bet
@@ -106,15 +107,15 @@ update msg model =
         ( { model
             | cards =
               [ (1, "H")
-              , (3, "H")
-              , (5, "H")
               , (2, "H")
+              , (3, "H")
               , (4, "H")
+              , (5, "D")
               , (10, "S")
               , (11, "C")
               , (12, "H")
               , (13, "H")
-              , (1, "H")
+              , (2, "H")
               ]
           }, Cmd.none
         )
@@ -246,11 +247,10 @@ view model =
       , div [ id "currentTotal" ] [ text <| displayTotal model.total model.coinVal ]
       ]
     , div [ id "gameButtonRow" ]
-      [ button [ onClick MakeFlush ]                [ text "Test-Hand = Flush" ]
+      [ button [ onClick MakeFlush ]                [ text "Test-Hand" ]
       , button [ onClick <| RaiseBet nextBet ]      [ text <| "Bet " ++ toString nextBet ]
       , button [ onClick <| RaiseBet 5 ]            [ text <| "Bet Max" ]
       , button [ onClick <| DealOrDraw model.seed ] [ text model.dealOrDraw ]
-      , div [] [ text <| "GameStatus" ++ toString model.gameStatus ]
       ]
     ]
 

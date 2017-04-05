@@ -6,68 +6,6 @@ import Time
 checkForWinners : CardList -> (HandStatus, List CardWinnerStatus)
 checkForWinners hand =
   let
-    isFlush : CardList -> Bool
-    isFlush hand =
-      let
-        suitList : List String
-        suitList = List.map Tuple.second hand
-      in
-        case List.head suitList of
-          Nothing -> False
-          Just val ->
-            List.all (\x -> x == val) suitList
-
-    isStraight : CardList -> Bool
-    isStraight hand =
-      let
-        sortedVals : List Int
-        sortedVals = List.sort <| List.map Tuple.first hand
-
-        lowest : Int
-        lowest =
-          case List.head sortedVals of
-            Nothing -> -100
-            Just val -> val
-
-        highest : Int
-        highest =
-          case List.head <| List.drop 4 sortedVals of
-            Nothing -> -100
-            Just val -> val
-      in
-        if highest - lowest == 4 then
-          True
-        else if List.length (List.filter (\x -> x > 9) sortedVals) == 4 && List.sum sortedVals == 47 then
-          True
-        else
-          False
-
-    checkForPairs : Int -> List Int -> List PairCheck -> List PairCheck
-    checkForPairs index vals newList =
-      let
-        thisVal : Int
-        thisVal =
-          case List.head <| List.drop index <| List.take (index + 1) <| vals of
-            Nothing -> -1
-            Just val -> val
-
-        makeNewList : Int -> List PairCheck
-        makeNewList val =
-          let
-            filtered : List PairCheck
-            filtered = List.filter (\x -> x.val == val) newList
-          in
-            case List.head filtered of
-              Nothing ->
-                {val = val, times = 1} :: newList
-              Just found ->
-                {val = val, times = found.times + 1} :: List.filter (\x -> x.val /= val) newList
-      in
-        if index == 5 then
-          List.filter (\x -> x.times > 1) newList
-        else
-          checkForPairs (index + 1) vals <| makeNewList thisVal
-
     getVals : CardList -> List Int
     getVals list =
       List.map Tuple.first list
@@ -76,33 +14,55 @@ checkForWinners hand =
     pairList =
       checkForPairs 0 (getVals hand) []
   in
-    if isFlush hand && isStraight hand then
-      (StraightFlush, List.repeat 5 Winner)
+    if isFlush hand && isStraight hand pairList then
+      if (List.member 1 <| getVals hand) && (List.member 13 <| getVals hand) then
+        (RoyalFlush, List.repeat 5 Winner)
+      else
+        (StraightFlush, List.repeat 5 Winner)
+    else if findPairHands pairList == FourOfAKind then
+      (FourOfAKind, highlightWinners hand pairList)
+    else if findPairHands pairList == FullHouse then
+      (FullHouse, highlightWinners hand pairList)
     else if isFlush hand then
       (Flush, List.repeat 5 Winner)
-    else if isStraight hand then
+    else if isStraight hand pairList then
       (Straight, List.repeat 5 Winner)
-    else if List.isEmpty pairList == False then
-      if List.length pairList == 1 then
-        case List.head pairList of
-          Nothing -> (NoWinner, List.repeat 5 NotAWinner)
-          Just val ->
-            case val.times of
-              2 ->
-                if (val.val > 10) then
-                  (JacksOrBetter, List.repeat 5 Winner)
-                else
-                  (NoWinner, List.repeat 5 NotAWinner)
-              3 ->
-                (ThreeOfAKind, List.repeat 5 Winner)
-              4 ->
-                (FourOfAKind, List.repeat 5 Winner)
-              default ->
-                (NoWinner, List.repeat 5 NotAWinner)
-      else
-        (NoWinner, List.repeat 5 NotAWinner)
     else
-      (NoWinner, List.repeat 5 NotAWinner)
+      case findPairHands pairList of
+        ThreeOfAKind ->
+          (ThreeOfAKind, highlightWinners hand pairList)
+        TwoPair ->
+          (TwoPair, highlightWinners hand pairList)
+        JacksOrBetter ->
+          (JacksOrBetter, highlightWinners hand pairList)
+        default ->
+          (NoWinner, List.repeat 5 NotAWinner)
+
+checkForPairs : Int -> List Int -> List PairCheck -> List PairCheck
+checkForPairs index vals newList =
+  let
+    thisVal : Int
+    thisVal =
+      case List.head <| List.drop index <| List.take (index + 1) <| vals of
+        Nothing -> -1
+        Just val -> val
+
+    makeNewList : Int -> List PairCheck
+    makeNewList val =
+      let
+        filtered : List PairCheck
+        filtered = List.filter (\x -> x.val == val) newList
+      in
+        case List.head filtered of
+          Nothing ->
+            {val = val, times = 1} :: newList
+          Just found ->
+            {val = val, times = found.times + 1} :: List.filter (\x -> x.val /= val) newList
+  in
+    if index == 5 then
+      List.filter (\x -> x.times > 1) newList
+    else
+      checkForPairs (index + 1) vals <| makeNewList thisVal
 
 drawCards : CardList -> CardList -> List Int -> Array.Array (Int, String)
 drawCards hand cards held =
@@ -120,9 +80,43 @@ drawCards hand cards held =
         case Array.get index next5 of
           Nothing -> (0, "error")
           Just val -> val
-
   in
     Array.indexedMap mapHand <| Array.fromList hand
+
+findPairHands : List PairCheck -> HandStatus
+findPairHands pairList =
+  if List.length pairList == 0 then
+    NoWinner
+  else if List.length pairList == 1 then
+    case List.head pairList of
+      Nothing -> NoWinner
+      Just val ->
+        case val.times of
+          2 ->
+            if val.val > 10 || val.val == 1 then
+              JacksOrBetter
+            else
+              NoWinner
+          3 ->
+            ThreeOfAKind
+          4 ->
+            FourOfAKind
+          default ->
+            NoWinner
+-- Pair / Full House
+  else
+    let
+      checkForThree : Int
+      checkForThree =
+      case List.maximum <| List.map .times pairList of
+        Nothing -> -1
+        Just val -> val
+    in
+      if checkForThree == 3 then
+        FullHouse
+      else
+        TwoPair
+
 
 flipCards : CardList -> List (Int) -> List CardStatus
 flipCards hand heldCards =
@@ -135,6 +129,51 @@ flipCards hand heldCards =
         FaceDown
   in
     Array.toList <| Array.indexedMap isHeld <| Array.fromList hand
+
+highlightWinners : CardList -> List PairCheck -> List CardWinnerStatus
+highlightWinners hand pairList =
+  if List.length pairList == 0 then
+    List.repeat 5 NotAWinner
+  else
+    List.repeat 5 Winner
+
+isFlush : CardList -> Bool
+isFlush hand =
+  let
+    suitList : List String
+    suitList = List.map Tuple.second hand
+  in
+    case List.head suitList of
+      Nothing -> False
+      Just val ->
+        List.all (\x -> x == val) suitList
+
+isStraight : CardList -> List PairCheck-> Bool
+isStraight hand pairList =
+  let
+    sortedVals : List Int
+    sortedVals = List.sort <| List.map Tuple.first hand
+
+    lowest : Int
+    lowest =
+      case List.head sortedVals of
+        Nothing -> -100
+        Just val -> val
+
+    highest : Int
+    highest =
+      case List.head <| List.drop 4 sortedVals of
+        Nothing -> -100
+        Just val -> val
+  in
+    if List.length pairList /= 0 then
+      False
+    else if highest - lowest == 4 then
+      True
+    else if List.length (List.filter (\x -> x > 9) sortedVals) == 4 && List.sum sortedVals == 47 then
+      True
+    else
+      False
 
 makeTimeInt : Float -> Int
 makeTimeInt num =
