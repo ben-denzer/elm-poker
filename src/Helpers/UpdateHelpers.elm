@@ -132,10 +132,22 @@ flipCards hand heldCards =
 
 highlightWinners : CardList -> List PairCheck -> List CardWinnerStatus
 highlightWinners hand pairList =
-  if List.length pairList == 0 then
-    List.repeat 5 NotAWinner
-  else
-    List.repeat 5 Winner
+  let
+    vals : List PairCheck -> List Int
+    vals pairList =
+      List.map .val pairList
+
+    checkVal : Card -> CardWinnerStatus
+    checkVal card =
+      if List.member (Tuple.first card)  (vals pairList) == True then
+        Winner
+      else
+        NotAWinner
+  in
+    if List.length pairList == 0 then
+      List.repeat 5 NotAWinner
+    else
+      List.map checkVal hand
 
 isFlush : CardList -> Bool
 isFlush hand =
