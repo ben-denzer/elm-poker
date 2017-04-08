@@ -103,22 +103,6 @@ update msg model =
             )
       GenerateSeed last ->
         ( { model | seed = (floor model.initialSeed) + last }, Cmd.none )
-      MakeFlush ->
-        ( { model
-            | cards =
-              [ (1, "H")
-              , (2, "H")
-              , (3, "H")
-              , (4, "H")
-              , (5, "D")
-              , (10, "S")
-              , (11, "C")
-              , (12, "H")
-              , (13, "H")
-              , (2, "H")
-              ]
-          }, Cmd.none
-        )
       Tick time ->
         let
           cardsDown : Bool
@@ -213,21 +197,19 @@ view model =
           Nothing -> "Error"
           Just val ->  val.handName
       else
-        ""
-
-    makeEachCard : Int -> Html Msg
-    makeEachCard =
-      makeCardHtml model
+        if model.gameStatus == GameOver && model.currentlyFlippingCards == False then
+          if List.length ( List.filter (\x -> x == FaceDown) model.cardStatusList ) == 0 then
+            "Game Over"
+          else
+            ""
+        else
+          ""
 
     cards : List (Html Msg)
-    cards = List.map makeEachCard <| List.range 0 4
-
-    makeEachHeldBlock : Int -> Html Msg
-    makeEachHeldBlock =
-      makeHeldHtml model
+    cards = List.map (makeCardHtml model) <| List.range 0 4
 
     heldBlocks : List (Html Msg)
-    heldBlocks = List.map makeEachHeldBlock <| List.range 0 4
+    heldBlocks = List.map (makeHeldHtml model) <| List.range 0 4
 
     nextBet : Int
     nextBet = getNextBet model.bet
@@ -247,10 +229,9 @@ view model =
       , div [ id "currentTotal" ] [ text <| displayTotal model.total model.coinVal ]
       ]
     , div [ id "gameButtonRow" ]
-      [ button [ onClick MakeFlush ]                [ text "Test-Hand" ]
-      , button [ onClick <| RaiseBet nextBet ]      [ text <| "Bet " ++ toString nextBet ]
-      , button [ onClick <| RaiseBet 5 ]            [ text <| "Bet Max" ]
-      , button [ onClick <| DealOrDraw model.seed ] [ text model.dealOrDraw ]
+      [ div [ class "gameBtn", onClick <| RaiseBet nextBet ]      [ text <| "Bet " ++ toString nextBet ]
+      , div [ class "gameBtn", onClick <| RaiseBet 5 ]            [ text <| "Bet Max" ]
+      , div [ class "gameBtn", onClick <| DealOrDraw model.seed ] [ text model.dealOrDraw ]
       ]
     ]
 

@@ -121,10 +121,17 @@ makeHeldHtml model index =
 makePayTableRow : Model -> WinningHand -> Html Msg
 makePayTableRow model hand =
   let
+    activeBet : Int -> String
+    activeBet bet =
+      if model.bet == bet then
+        " activeCol"
+      else
+        ""
+
     activeHand : WinningHand -> String
     activeHand hand =
       if hand.msgName == model.handStatus then
-        "activeHand"
+        " activeHand"
       else
         ""
 
@@ -135,11 +142,11 @@ makePayTableRow model hand =
       else
         hand.payVal * 5
   in
-    div [ class <| "payRow " ++ activeHand hand ]
-    [ div [ class "payRowCol payRowLabel" ]   [ text hand.handName ]
-    , div [ class "payRowCol payOne" ]        [ text <| toString hand.payVal ]
-    , div [ class "payRowCol payTwo" ]        [ text <| toString <| hand.payVal * 2 ]
-    , div [ class "payRowCol payThree" ]      [ text <| toString <| hand.payVal * 3 ]
-    , div [ class "payRowCol payFour" ]       [ text <| toString <| hand.payVal * 4 ]
-    , div [ class "payRowCol payFive" ]       [ text <| toString <| checkForBonus hand ]
+    div [ class <| "payRow" ++ activeHand hand ]
+    [ div [ class <| "payRowCol payRowLabel" ]   [ text hand.handName ]
+    , div [ class <| "payRowCol" ++ activeBet 1] [ text <| toString hand.payVal ]
+    , div [ class <| "payRowCol" ++ activeBet 2] [ text <| toString <| hand.payVal * 2 ]
+    , div [ class <| "payRowCol" ++ activeBet 3] [ text <| toString <| hand.payVal * 3 ]
+    , div [ class <| "payRowCol" ++ activeBet 4] [ text <| toString <| hand.payVal * 4 ]
+    , div [ class <| "payRowCol" ++ activeBet 5] [ text <| toString <| checkForBonus hand ]
     ]

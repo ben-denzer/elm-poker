@@ -43,7 +43,6 @@ type Msg =
   DealOrDraw Int
   | GenerateSeed Int
   | Hold Int
-  | MakeFlush
   | PlayerPays
   | PlayerWins
   | RaiseBet Int

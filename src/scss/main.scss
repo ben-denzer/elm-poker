@@ -23,36 +23,6 @@ body {
       font-size: 18px;
       color: yellow;
 
-      &.bet1 {
-        .payOne {
-          background-color: darkred;
-        }
-      }
-
-      &.bet2 {
-        .payTwo {
-          background-color: darkred;
-        }
-      }
-
-      &.bet3 {
-        .payThree {
-          background-color: darkred;
-        }
-      }
-
-      &.bet4 {
-        .payFour {
-          background-color: darkred;
-        }
-      }
-
-      &.bet5 {
-        .payFive {
-          background-color: darkred;
-        }
-      }
-
       .payRow {
         display: flex;
         justify-content: center;
@@ -60,6 +30,10 @@ body {
 
         &.activeHand {
           background-color: #222;
+
+          .activeCol {
+            background-color: rgba(128, 0, 0, .7) !important;
+          }
         }
 
         .payRowCol {
@@ -72,6 +46,10 @@ body {
             width: 20%;
             border: 0;
             text-align: left;
+          }
+
+          &.activeCol {
+            background-color: darkred;
           }
         }
       }
@@ -201,6 +179,28 @@ body {
 
     #gameButtonRow {
       margin-top: 40px;
+      display: flex;
+      justify-content: center;
+
+      .gameBtn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 30px;
+        margin: 0 15px;
+        padding: 10px 40px;
+        background-color: #ccc;
+        font-size: 24px;
+        color: #222;
+        border: 3px solid #aaa;
+        min-width: 200px;
+
+        &:hover {
+          background-color: #aaa;
+          border: 3px solid #ccc;
+          cursor: pointer;
+        }
+      }
     }
   }
 }
