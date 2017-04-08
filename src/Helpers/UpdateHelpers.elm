@@ -1,7 +1,6 @@
 module UpdateHelpers exposing (..)
 import CustomTypes exposing (..)
 import Array
-import Time
 
 checkForWinners : CardList -> (HandStatus, List CardWinnerStatus)
 checkForWinners hand =
@@ -186,10 +185,6 @@ isStraight hand pairList =
       True
     else
       False
-
-makeTimeInt : Float -> Int
-makeTimeInt num =
-  floor <| Time.inMilliseconds 1.23948
 
 updateHeld : Int -> List Int -> List Int
 updateHeld index heldCards =

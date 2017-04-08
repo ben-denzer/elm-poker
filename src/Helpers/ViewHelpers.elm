@@ -141,6 +141,7 @@ makePayTableRow model hand =
         hand.payVal * 16
       else
         hand.payVal * 5
+
   in
     div [ class <| "payRow" ++ activeHand hand ]
     [ div [ class <| "payRowCol payRowLabel" ]   [ text hand.handName ]

@@ -34,17 +34,13 @@ type alias Model =
   , hand                    : CardList
   , handStatus              : HandStatus
   , heldCards               : List Int
-  , initialSeed             : Float
   , seed                    : Int
   , total                   : Int
   }
 
 type Msg =
-  DealOrDraw Int
-  | GenerateSeed Int
+  DealOrDraw
   | Hold Int
-  | PlayerPays
-  | PlayerWins
   | RaiseBet Int
   | Tick Time
 

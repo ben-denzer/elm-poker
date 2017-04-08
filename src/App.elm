@@ -7,7 +7,6 @@ import UpdateHelpers exposing
   ( checkForWinners
   , drawCards
   , flipCards
-  , makeTimeInt
   , updateHeld
   )
 import CustomTypes exposing (..)
@@ -29,7 +28,7 @@ main =
 init : (Model, Cmd Msg)
 init =
   (
-    { cards                   = shuffleDeck (makeDeck <| List.range 1 13) (makeTimeInt 23498)
+    { cards                   = shuffleDeck (makeDeck <| List.range 1 13) 34982374327492387492378
     , bet                     = 1
     , cardStatusList          = List.repeat 5 FaceDown
     , cardWinnerList          = List.repeat 5 NotAWinner
@@ -40,8 +39,7 @@ init =
     , hand                    = []
     , handStatus              = NoWinner
     , heldCards               = []
-    , initialSeed             = Time.millisecond * 24747
-    , seed                    = floor <| Time.inMilliseconds 98798709.97
+    , seed                    = 234239482340879797979
     , total                   = 400
     }
     , Cmd.none
@@ -66,7 +64,7 @@ update msg model =
             model.bet * val.payVal
   in
     case msg of
-      DealOrDraw last->
+      DealOrDraw ->
         if model.dealOrDraw == "Deal" then
           ( { model |
               cardStatusList = List.repeat 5 FaceDown,
@@ -76,14 +74,13 @@ update msg model =
               gameStatus = Draw,
               handStatus = NoWinner,
               heldCards = [],
-              seed = (floor model.initialSeed) + last,
               total = model.total - model.bet
             }, Cmd.none
           )
         else
           if List.length model.heldCards == 5 then
             ( { model
-              | cards = shuffleDeck model.cards <| floor model.initialSeed + last
+              | cards = shuffleDeck model.cards <| model.seed
               , cardWinnerList = Tuple.second winnerList
               , dealOrDraw = "Deal"
               , gameStatus = GameOver
@@ -93,7 +90,7 @@ update msg model =
             )
           else
             ( { model |
-                cards = shuffleDeck model.cards <| floor model.initialSeed + last,
+                cards = shuffleDeck model.cards <| model.seed,
                 cardStatusList = flipCards model.hand model.heldCards,
                 cardWinnerList = List.repeat 5 NotAWinner,
                 gameStatus = GameOver,
@@ -101,8 +98,6 @@ update msg model =
                 dealOrDraw = "Deal"
               }, Cmd.none
             )
-      GenerateSeed last ->
-        ( { model | seed = (floor model.initialSeed) + last }, Cmd.none )
       Tick time ->
         let
           cardsDown : Bool
@@ -171,9 +166,7 @@ update msg model =
                 }, Cmd.none
               )
             else
-              ( { model | initialSeed = Time.inMilliseconds time }, Cmd.none )
-      PlayerPays -> (model, Cmd.none)
-      PlayerWins -> (model, Cmd.none)
+              ( { model | seed = floor <| Time.inMilliseconds time }, Cmd.none )
       RaiseBet bet ->
         if model.gameStatus == Draw then
           ( model, Cmd.none )
@@ -229,9 +222,9 @@ view model =
       , div [ id "currentTotal" ] [ text <| displayTotal model.total model.coinVal ]
       ]
     , div [ id "gameButtonRow" ]
-      [ div [ class "gameBtn", onClick <| RaiseBet nextBet ]      [ text <| "Bet " ++ toString nextBet ]
-      , div [ class "gameBtn", onClick <| RaiseBet 5 ]            [ text <| "Bet Max" ]
-      , div [ class "gameBtn", onClick <| DealOrDraw model.seed ] [ text model.dealOrDraw ]
+      [ div [ class "gameBtn", onClick <| RaiseBet nextBet ]  [ text <| "Bet " ++ toString nextBet ]
+      , div [ class "gameBtn", onClick <| RaiseBet 5 ]        [ text <| "Bet Max" ]
+      , div [ class "gameBtn", onClick <| DealOrDraw ]        [ text model.dealOrDraw ]
       ]
     ]
 
